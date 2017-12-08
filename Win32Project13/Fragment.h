@@ -32,6 +32,7 @@ public:
 	int getType();
 	int getNumber();
 
+	void addNoteFragment(char name_note, char alt_note, int oct_note, int  dur_note);
 	void readFragment(string filename);
 	Element * findElement(int x, int y);
 };

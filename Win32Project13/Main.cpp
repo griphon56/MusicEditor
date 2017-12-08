@@ -30,8 +30,9 @@
 #define FILE_MENU_ID 106
 
 #define ID_SCROLL 1010
-
 #define ID_COMBO 1011
+
+#define ID_ADD_NOTE_FRAGMENT 1012
 
 const int buttonStyle = BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | WS_TABSTOP | BS_MULTILINE, 
 		  buttonWidth = 100,
@@ -287,7 +288,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	}
 
 	// Создаем основное окно приложения
-	hMainWnd = CreateWindowW(wc.lpszClassName, L"WndProc", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
+	hMainWnd = CreateWindowW(wc.lpszClassName, L"WndProc", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, 1100, 500, NULL, NULL, hInstance, NULL);
 	if (!hMainWnd) {
 		MessageBox(NULL, L"Не удалось создать главное окно.", L"Ошибка", MB_OK);
 		return 0;
@@ -325,6 +326,7 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 
 	char buffer = '1';
 	static HWND Scroll1;
+	static HWND combo_add_note, combo_add_note_alter, edit_add_note_dur;
 	static int nPage, nCurPos, nPosMin, nPosMax;
 	char pos[5];
 
@@ -336,17 +338,6 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 	wstring arr_w;
 	int fragLength;
 	HMENU main_menu, menu_view;
-
-	// ИЗМЕНИТЬ КНОПКИ
-	TBBUTTON tbb[] = {
-		{STD_FILEOPEN, ID_BUTTON_LOAD_FROM_FILE, TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0, 0, 0},
-		{IDB_BITMAP_UP, ID_setBeatLines,TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0, 0, 0 },
-		{IDB_BITMAP_UP, ID_Transpose, TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0, 0, 0},
-		{IDB_BITMAP_UP, ID_Tonality, TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0, 0, 0},
-		{IDB_BITMAP_UP, ID_IntervalLength, TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0, 0, 0},
-		{IDB_BITMAP_UP, ID_AddNoteAndInterval, TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0, 0, 0},
-		{IDB_BITMAP_UP, ID_PrintTact, TBSTATE_ENABLED, TBSTYLE_BUTTON, 0, 0, 0, 0},
-    };
 
 	SetConsoleCP(1251);
     SetConsoleOutputCP(1251);
@@ -369,22 +360,23 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 		int x,y; //координаты
 
 		case WM_CREATE:
+		{
 			// Создаем скрол бар
-			Scroll1=CreateWindow(L"scrollbar", NULL, SBS_VERT | SBS_BOTTOMALIGN | WS_CHILD | WS_VISIBLE, 6 * buttonWidth + 350 + 20, 18, 16, 392, hMainWnd, (HMENU)0, NULL, NULL);
-	
-			nPage=10;
-			nPosMin=1;
-			nPosMax=390;
-			nCurPos=0;
+			Scroll1 = CreateWindow(L"scrollbar", NULL, SBS_VERT | SBS_BOTTOMALIGN | WS_CHILD | WS_VISIBLE, 6 * buttonWidth + 250 + 20, 18, 16, 392, hMainWnd, (HMENU)0, NULL, NULL);
 
-			SetScrollRange(Scroll1, SB_CTL, nPosMin, nPosMax, TRUE);	
+			nPage = 10;
+			nPosMin = 1;
+			nPosMax = 390;
+			nCurPos = 0;
+
+			SetScrollRange(Scroll1, SB_CTL, nPosMin, nPosMax, TRUE);
 			SetScrollPos(Scroll1, SB_CTL, nCurPos, TRUE);
 
 			/*CreateToolbarEx(hMainWnd, WS_CHILD | WS_VISIBLE | CCS_TOP, 1,
-            0, HINST_COMMCTRL, IDB_STD_SMALL_COLOR, tbb, 7, 0, 0, 0, 0, sizeof(TBBUTTON));*/
+			0, HINST_COMMCTRL, IDB_STD_SMALL_COLOR, tbb, 7, 0, 0, 0, 0, sizeof(TBBUTTON));*/
 
 			// Лейбл  "Фрагмент"
-			hGrBox = CreateWindow( L"Button", L"Н О Т Ы", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 20, 10, 6 * buttonWidth + 350, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
+			hGrBox = CreateWindow(L"Button", L"Н О Т Ы", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 20, 10, 6 * buttonWidth + 250, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
 
 			main_menu = CreateMenu();
 			menu_view = CreatePopupMenu();
@@ -396,16 +388,67 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 			AppendMenu(menu_view, MF_STRING, ID_PrintTact, L"Вывести такт");
 			AppendMenu(menu_view, MF_STRING, ID_IntervalLength, L"Длина интервала");
 			AppendMenu(menu_view, MF_STRING, ID_AddNoteAndInterval, L"Сложение ноты с интервалов");
-			
+
 			AppendMenu(main_menu, MF_STRING, ABOUT_MENU_ID, L"О программе");
 			AppendMenu(main_menu, MF_STRING, EXIT_MENU_ID, L"Выход");
 			SetMenu(hMainWnd, main_menu);
 
+			//Добавление ноты
+			CreateWindow(L"STATIC",
+				L"Выберите ноту:", WS_CHILD | WS_VISIBLE,
+				900, 10, 150, 20, hMainWnd, NULL, nullptr, NULL);
+
+			combo_add_note = CreateWindow(L"combobox", L"combo", WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | CBS_AUTOHSCROLL | WS_VSCROLL,
+				900, 40, 150, 200, hMainWnd, NULL, wc.hInstance, NULL);
+			TCHAR a_notes[7][10] =
+			{
+				TEXT("F"), TEXT("C"), TEXT("G"), TEXT("D"),
+				TEXT("A"), TEXT("E"), TEXT("B")
+			};
+
+			TCHAR A[7];
+			memset(&A, 0, sizeof(A));
+			for (int k = 0; k < 7; k += 1)
+			{
+				wcscpy_s(A, sizeof(A) / sizeof(TCHAR), (TCHAR*)a_notes[k]);
+				SendMessage(combo_add_note, (UINT)CB_ADDSTRING, (WPARAM)0, (LPARAM)A);
+			}
+			SendMessage(combo_add_note, CB_SETCURSEL, (WPARAM)1, (LPARAM)0);
+			//---------------------------------------------------------------------------------------------------
+			CreateWindow(L"STATIC",
+				L"Выберите alt:", WS_CHILD | WS_VISIBLE,
+				900, 70, 150, 20, hMainWnd, NULL, nullptr, NULL);
+
+			combo_add_note_alter = CreateWindow(L"combobox", L"combo", WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | CBS_AUTOHSCROLL | WS_VSCROLL,
+				900, 100, 150, 200, hMainWnd, NULL, wc.hInstance, NULL);
+			TCHAR a_alter[3][10] =
+			{
+				TEXT("_"), TEXT("b"), TEXT("#")
+			};
+
+			TCHAR AA[3];
+			memset(&AA, 0, sizeof(AA));
+			for (int k = 0; k < 3; k += 1)
+			{
+				wcscpy_s(AA, sizeof(AA) / sizeof(TCHAR), (TCHAR*)a_alter[k]);
+				SendMessage(combo_add_note_alter, (UINT)CB_ADDSTRING, (WPARAM)0, (LPARAM)AA);
+			}
+			SendMessage(combo_add_note_alter, CB_SETCURSEL, (WPARAM)1, (LPARAM)0);
+			//=========================================================================================
+			CreateWindow(L"STATIC",
+				L"Укажите dur:", WS_CHILD | WS_VISIBLE,
+				900, 130, 150, 20, hMainWnd, NULL, nullptr, NULL);
+
+			edit_add_note_dur = CreateWindow(L"EDIT",
+				L"0", WS_CHILD | WS_VISIBLE | WS_BORDER,
+				900, 160, 150, 20, hMainWnd, NULL, nullptr, NULL);
+
+			CreateWindow(L"BUTTON", L"Добавить", BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | WS_TABSTOP, 900, 190, 150, 24, hMainWnd, (HMENU)ID_ADD_NOTE_FRAGMENT, wc.hInstance, NULL);
+
 			DestroyMenu(main_menu);
-
 			UpdateWindow(hMainWnd);
-
-			return 0;
+		}
+			break;
 
 		case WM_VSCROLL:
 			switch (LOWORD(wParam)) {
@@ -489,7 +532,7 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 					frag1.readFragment(string(arr_w.begin(), arr_w.end()));
 
 					DestroyWindow(hGrBox);
-					hGrBox = CreateWindow(L"Button", L"Н О Т Ы", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 20, 10, 6 * buttonWidth + 350, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
+					hGrBox = CreateWindow(L"Button", L"Н О Т Ы", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 20, 10, 6 * buttonWidth + 250, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
 
 					frag1.printFragment(hGrBox, wc.hInstance);
 					UpdateWindow(hGrBox);
@@ -540,7 +583,7 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 						return 0;
 					}
 					DestroyWindow(hGrBox);
-					hGrBox = CreateWindow(L"Button", L"Н О Т Ы", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 20, 10, 6 * buttonWidth + 350, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
+					hGrBox = CreateWindow(L"Button", L"Н О Т Ы", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 20, 10, 6 * buttonWidth + 250, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
 
 					hStatusBar = DoCreateStatusBar(hMainWnd, 0, wc.hInstance, 1);
 					SetWindowText(hStatusBar, L"Идет расстановка тактовых черт..");
@@ -689,7 +732,33 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 						}
 					}
 				}
-					return 0;
+				break;
+
+				case ID_ADD_NOTE_FRAGMENT:
+				{
+					// Получить содержимое из комбобокса (Ноту)
+					int noteIndex = SendMessage(combo_add_note, (UINT)CB_GETCURSEL, (WPARAM)0, (LPARAM)0);
+					TCHAR  name_note[5];
+					(TCHAR)SendMessage(combo_add_note, (UINT)CB_GETLBTEXT, (WPARAM)noteIndex, (LPARAM)name_note);
+					// Получить содержимое из комбобокса (Альтерацию)
+					int alterIndex = SendMessage(combo_add_note_alter, (UINT)CB_GETCURSEL, (WPARAM)0, (LPARAM)0);
+					TCHAR  alter_note[5];
+					(TCHAR)SendMessage(combo_add_note_alter, (UINT)CB_GETLBTEXT, (WPARAM)alterIndex, (LPARAM)alter_note);
+					// Получить содержимое из эдита (Длительность)
+					TCHAR buff[10];
+					GetWindowText(edit_add_note_dur, buff, 10);
+					// Дабавляем ноту во фрагмент
+					frag1.addNoteFragment(name_note[0], alter_note[0], 2, (INT)buff[0]);
+
+					// Перерисовываем и выводим
+					DestroyWindow(hGrBox);
+					hGrBox = CreateWindow(L"Button", L"Н О Т Ы", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 20, 10, 6 * buttonWidth + 250, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
+
+					frag1.printFragment(hGrBox, wc.hInstance);
+					UpdateWindow(hGrBox);
+					UpdateWindow(hMainWnd);
+				}
+				break;
 
 				case ABOUT_MENU_ID:
 					DialogBoxParam(wc.hInstance, MAKEINTRESOURCE(IDD_DIALOG1), nullptr, DlgProc, 0);
@@ -788,7 +857,7 @@ LONG WINAPI ChildWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lparam)
 			case 103:
 			{
 				DestroyWindow(hGrBox);
-				hGrBox = CreateWindow(L"Button", L"Н О Т Ы", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 20, 10, 6 * buttonWidth + 350, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
+				hGrBox = CreateWindow(L"Button", L"Н О Т Ы", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 20, 10, 6 * buttonWidth + 250, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
 				GetWindowText(editblock, buf, 10);
 
 				frag1.printTact(hGrBox, wc.hInstance, atoi((char*)buf));
@@ -820,7 +889,7 @@ LONG WINAPI ChildWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lparam)
 				MessageBox(NULL, ptr, L"", MB_OK);
 
 				DestroyWindow(hGrBox);
-				hGrBox = CreateWindow(L"Button", L"Н О Т Ы", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 20, 10, 6 * buttonWidth + 350, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
+				hGrBox = CreateWindow(L"Button", L"Н О Т Ы", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 20, 10, 6 * buttonWidth + 250, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
 
 				frag1.printFragment(hGrBox, wc.hInstance);
 				UpdateWindow(hGrBox);

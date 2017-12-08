@@ -335,6 +335,16 @@ void Fragment::readFragment(string filename)
 	}
 }
 
+// Добавление ноты во фрагмент
+// char name_note - Название ноты
+// char alt_note - Альтерация
+// int oct_note - Октава
+// int  dur_note - Длительность
+void Fragment::addNoteFragment(char name_note, char alt_note, int oct_note, int  dur_note)
+{
+	addElement(new Note(name_note, alt_note == '_' ? ' ' : alt_note, oct_note, dur_note));
+}
+
 // Получить длинну элемента
 int Fragment::getLength()
 {

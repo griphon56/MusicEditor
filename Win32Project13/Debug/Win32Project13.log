@@ -1,0 +1,28 @@
+﻿  Main.cpp
+c:\users\user\desktop\сдать, на флеху кинь\курсачsp\win32project13\win32project13\main.cpp(100): warning C4996: 'mbstowcs': This function or variable may be unsafe. Consider using mbstowcs_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.16299.0\ucrt\stdlib.h(931): note:  см. объявление "mbstowcs"
+c:\users\user\desktop\сдать, на флеху кинь\курсачsp\win32project13\win32project13\main.cpp(111): warning C4996: 'mbstowcs': This function or variable may be unsafe. Consider using mbstowcs_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.16299.0\ucrt\stdlib.h(931): note:  см. объявление "mbstowcs"
+c:\users\user\desktop\сдать, на флеху кинь\курсачsp\win32project13\win32project13\main.cpp(240): warning C4101: row: неиспользованная локальная переменная
+c:\users\user\desktop\сдать, на флеху кинь\курсачsp\win32project13\win32project13\main.cpp(240): warning C4101: col: неиспользованная локальная переменная
+c:\users\user\desktop\сдать, на флеху кинь\курсачsp\win32project13\win32project13\main.cpp(470): warning C4996: 'mbstowcs': This function or variable may be unsafe. Consider using mbstowcs_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.16299.0\ucrt\stdlib.h(931): note:  см. объявление "mbstowcs"
+c:\users\user\desktop\сдать, на флеху кинь\курсачsp\win32project13\win32project13\main.cpp(479): warning C4996: 'mbstowcs': This function or variable may be unsafe. Consider using mbstowcs_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.16299.0\ucrt\stdlib.h(931): note:  см. объявление "mbstowcs"
+c:\users\user\desktop\сдать, на флеху кинь\курсачsp\win32project13\win32project13\main.cpp(622): warning C4996: 'mbstowcs': This function or variable may be unsafe. Consider using mbstowcs_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.16299.0\ucrt\stdlib.h(931): note:  см. объявление "mbstowcs"
+c:\users\user\desktop\сдать, на флеху кинь\курсачsp\win32project13\win32project13\main.cpp(628): warning C4996: 'mbstowcs': This function or variable may be unsafe. Consider using mbstowcs_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.16299.0\ucrt\stdlib.h(931): note:  см. объявление "mbstowcs"
+c:\users\user\desktop\сдать, на флеху кинь\курсачsp\win32project13\win32project13\main.cpp(658): warning C4996: 'mbstowcs': This function or variable may be unsafe. Consider using mbstowcs_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.16299.0\ucrt\stdlib.h(931): note:  см. объявление "mbstowcs"
+c:\users\user\desktop\сдать, на флеху кинь\курсачsp\win32project13\win32project13\main.cpp(337): warning C4101: fragLength: неиспользованная локальная переменная
+c:\users\user\desktop\сдать, на флеху кинь\курсачsp\win32project13\win32project13\main.cpp(334): warning C4101: filedit: неиспользованная локальная переменная
+c:\users\user\desktop\сдать, на флеху кинь\курсачsp\win32project13\win32project13\main.cpp(329): warning C4101: pos: неиспользованная локальная переменная
+c:\users\user\desktop\сдать, на флеху кинь\курсачsp\win32project13\win32project13\main.cpp(366): warning C4101: param: неиспользованная локальная переменная
+c:\users\user\desktop\сдать, на флеху кинь\курсачsp\win32project13\win32project13\main.cpp(363): warning C4101: tootip: неиспользованная локальная переменная
+c:\users\user\desktop\сдать, на флеху кинь\курсачsp\win32project13\win32project13\main.cpp(818): warning C4996: 'mbstowcs': This function or variable may be unsafe. Consider using mbstowcs_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+  c:\program files (x86)\windows kits\10\include\10.0.16299.0\ucrt\stdlib.h(931): note:  см. объявление "mbstowcs"
+c:\users\user\desktop\сдать, на флеху кинь\курсачsp\win32project13\win32project13\main.cpp(755): warning C4101: intervNum: неиспользованная локальная переменная
+c:\users\user\desktop\сдать, на флеху кинь\курсачsp\win32project13\win32project13\main.cpp(113): warning C4172: возвращение адреса локальной или временной переменной : wtext
+c:\users\user\desktop\сдать, на флеху кинь\курсачsp\win32project13\win32project13\main.cpp(833): warning C4700: использована неинициализированная локальная переменная "item"
+  Win32Project13.vcxproj -> C:\Users\user\Desktop\Сдать, на флеху кинь\КурсачSP\Win32Project13\Debug\Win32Project13.exe

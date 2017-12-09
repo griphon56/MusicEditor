@@ -6,7 +6,7 @@
 vector <HWND> elems;
 vector <HWND> tootips;
 
-// ХЗ
+// Г•Г‡
 Fragment::Fragment(int num , int den , int type , int number )
 {
 	Alterative.Type = type;
@@ -15,8 +15,8 @@ Fragment::Fragment(int num , int den , int type , int number )
 	Form.Denominator = den;
 }
 
-// Добавление элемента
-// obj element - Элемент
+// Г„Г®ГЎГ ГўГ«ГҐГ­ГЁГҐ ГЅГ«ГҐГ¬ГҐГ­ГІГ 
+// obj element - ГќГ«ГҐГ¬ГҐГ­ГІ
 void Fragment::addElement(Element *element)
 {
 	if(element->getType() == 1)
@@ -35,8 +35,8 @@ void Fragment::addElement(Element *element)
 	Elements.push_back(element);
 }
 
-// Транспонироание
-// int interval - интервал который будет перемещен по октаве.
+// Г’Г°Г Г­Г±ГЇГ®Г­ГЁГ°Г®Г Г­ГЁГҐ
+// int interval - ГЁГ­ГІГҐГ°ГўГ Г« ГЄГ®ГІГ®Г°Г»Г© ГЎГіГ¤ГҐГІ ГЇГҐГ°ГҐГ¬ГҐГ№ГҐГ­ ГЇГ® Г®ГЄГІГ ГўГҐ.
 void Fragment::transpose(int interval)
 {
 	unsigned FragmentLength = Elements.size();
@@ -58,7 +58,7 @@ void Fragment::transpose(int interval)
 	}
 }
 
-// Установить такты
+// Г“Г±ГІГ Г­Г®ГўГЁГІГј ГІГ ГЄГІГ»
 void Fragment::setBeatLines()
 {
 	unsigned count = 0, fragmentLength = Elements.size();
@@ -85,7 +85,7 @@ void Fragment::setBeatLines()
 	}
 }
 
-// Вывести фрагмент
+// Г‚Г»ГўГҐГ±ГІГЁ ГґГ°Г ГЈГ¬ГҐГ­ГІ
 void Fragment::printFragment(HWND &wind, HINSTANCE &hInst)
 {
 	TCHAR buf[1024];
@@ -109,7 +109,7 @@ void Fragment::printFragment(HWND &wind, HINSTANCE &hInst)
 
 	LPWSTR ptr =  toLPWSTR(alters);
 
-	StringCbPrintfW(buf, ARRAYSIZE(buf), L"Знаки альтерации: %s", ptr);
+	StringCbPrintfW(buf, ARRAYSIZE(buf), L"Г‡Г­Г ГЄГЁ Г Г«ГјГІГҐГ°Г Г¶ГЁГЁ: %s", ptr);
 	
 	labelCont = CreateWindow(TEXT("Static"), buf, WS_CHILD | WS_VISIBLE, 10, 30, 130 + Alterative.Number * 22, 20, wind, (HMENU)5001, hInst, NULL);
 	elems.push_back (labelCont);
@@ -118,7 +118,7 @@ void Fragment::printFragment(HWND &wind, HINSTANCE &hInst)
 
 	ptr =  toLPWSTR(alters);
 
-	StringCbPrintfW(buf, ARRAYSIZE(buf), L"Размер: %s", ptr);
+	StringCbPrintfW(buf, ARRAYSIZE(buf), L"ГђГ Г§Г¬ГҐГ°: %s", ptr);
 
 	elems.push_back (CreateWindow(TEXT("Static"), buf, WS_CHILD | WS_VISIBLE, 10, 60, 140, 20, wind, (HMENU)5002, hInst, NULL));
 
@@ -153,9 +153,9 @@ void Fragment::printFragment(HWND &wind, HINSTANCE &hInst)
 
 }
 
-// Получить интервал.
-// obj note1 - Первая нота
-// obj note2 - Вторая нота
+// ГЏГ®Г«ГіГ·ГЁГІГј ГЁГ­ГІГҐГ°ГўГ Г«.
+// obj note1 - ГЏГҐГ°ГўГ Гї Г­Г®ГІГ 
+// obj note2 - Г‚ГІГ®Г°Г Гї Г­Г®ГІГ 
 int Fragment::getInterval(Note *note1, Note* note2)
 {
 	string name1 = " ", name2 = " "; 
@@ -184,7 +184,7 @@ int Fragment::getInterval(Note *note1, Note* note2)
 
 }
 
-// Получить тональность
+// ГЏГ®Г«ГіГ·ГЁГІГј ГІГ®Г­Г Г«ГјГ­Г®Г±ГІГј
 string Fragment::getTonality()
 {
 	string tonalities[2][8] = {{"C / Am", "G / Em", "D / Bm", "A / F#m", "E / C#m", "B / G#m", "F# / D#m", "C# / A#m"},
@@ -193,8 +193,8 @@ string Fragment::getTonality()
 	return tonalities[Alterative.Type][Alterative.Number];
 }
 
-// Вывести такт
-// int number - Номер такта
+// Г‚Г»ГўГҐГ±ГІГЁ ГІГ ГЄГІ
+// int number - ГЌГ®Г¬ГҐГ° ГІГ ГЄГІГ 
 void Fragment::printTact(HWND &wind, HINSTANCE &hInst, int number)
 {
 	unsigned count = 0, itact = 0, fragmentLength = Elements.size();
@@ -234,7 +234,7 @@ void Fragment::printTact(HWND &wind, HINSTANCE &hInst, int number)
 
 		LPWSTR ptr =  toLPWSTR(alters);
 
-		StringCbPrintfW(buf, ARRAYSIZE(buf), L"Знаки альтерации: %s", ptr);
+		StringCbPrintfW(buf, ARRAYSIZE(buf), L"Г‡Г­Г ГЄГЁ Г Г«ГјГІГҐГ°Г Г¶ГЁГЁ: %s", ptr);
 	
 		labelCont = CreateWindow(TEXT("Static"), buf, WS_CHILD | WS_VISIBLE, 10, 30, 130 + Alterative.Number * 22, 20, wind, (HMENU)5001, hInst, NULL);
 		elems.push_back (labelCont);
@@ -243,14 +243,14 @@ void Fragment::printTact(HWND &wind, HINSTANCE &hInst, int number)
 
 		ptr =  toLPWSTR(alters);
 
-		StringCbPrintfW(buf, ARRAYSIZE(buf), L"Размер: %s", ptr);
+		StringCbPrintfW(buf, ARRAYSIZE(buf), L"ГђГ Г§Г¬ГҐГ°: %s", ptr);
 
 		elems.push_back (CreateWindow(TEXT("Static"), buf, WS_CHILD | WS_VISIBLE, 10, 60, 140, 20, wind, (HMENU)5002, hInst, NULL));
 
 
 
 	if(itact == fragmentLength)
-		MessageBox(NULL, L"Такого такта нет!", L"Ошибка", MB_OK);
+		MessageBox(NULL, L"Г’Г ГЄГ®ГЈГ® ГІГ ГЄГІГ  Г­ГҐГІ!", L"ГЋГёГЁГЎГЄГ ", MB_OK);
 	else
 	{
 
@@ -286,8 +286,8 @@ void Fragment::printTact(HWND &wind, HINSTANCE &hInst, int number)
 	}
 }
 
-// Открыть файл с нотами
-// string filename - название файла
+// ГЋГІГЄГ°Г»ГІГј ГґГ Г©Г« Г± Г­Г®ГІГ Г¬ГЁ
+// string filename - Г­Г Г§ГўГ Г­ГЁГҐ ГґГ Г©Г«Г 
 void Fragment::readFragment(string filename)
 {
 	ifstream fin(filename);
@@ -335,25 +335,25 @@ void Fragment::readFragment(string filename)
 	}
 }
 
-// Добавление ноты во фрагмент
-// char name_note - Название ноты
-// char alt_note - Альтерация
-// int oct_note - Октава
-// int  dur_note - Длительность
+// Р”РѕР±Р°РІР»РµРЅРёРµ РЅРѕС‚С‹ РІРѕ С„СЂР°РіРјРµРЅС‚
+// char name_note - РќР°Р·РІР°РЅРёРµ РЅРѕС‚С‹
+// char alt_note - РђР»СЊС‚РµСЂР°С†РёСЏ
+// int oct_note - РћРєС‚Р°РІР°
+// int  dur_note - Р”Р»РёС‚РµР»СЊРЅРѕСЃС‚СЊ
 void Fragment::addNoteFragment(char name_note, char alt_note, int oct_note, int  dur_note)
 {
 	addElement(new Note(name_note, alt_note == '_' ? ' ' : alt_note, oct_note, dur_note));
 }
 
-// Получить длинну элемента
+// ГЏГ®Г«ГіГ·ГЁГІГј Г¤Г«ГЁГ­Г­Гі ГЅГ«ГҐГ¬ГҐГ­ГІГ 
 int Fragment::getLength()
 {
 	return Elements.size();
 }
 
-// Поиск элемента по клику
-// int x - Координата Х
-// int y - Координата Y
+// ГЏГ®ГЁГ±ГЄ ГЅГ«ГҐГ¬ГҐГ­ГІГ  ГЇГ® ГЄГ«ГЁГЄГі
+// int x - ГЉГ®Г®Г°Г¤ГЁГ­Г ГІГ  Г•
+// int y - ГЉГ®Г®Г°Г¤ГЁГ­Г ГІГ  Y
 Element * Fragment::findElement(int x, int y)
 {
 	unsigned fragmentLength = Elements.size();
@@ -382,13 +382,13 @@ Element * Fragment::findElement(int x, int y)
 	return nullptr;
 }
 
-// Получить вид альтерации
+// ГЏГ®Г«ГіГ·ГЁГІГј ГўГЁГ¤ Г Г«ГјГІГҐГ°Г Г¶ГЁГЁ
 int Fragment::getType()
 {
 	return Alterative.Type;
 }
 
-// Получить номер альтерации
+// ГЏГ®Г«ГіГ·ГЁГІГј Г­Г®Г¬ГҐГ° Г Г«ГјГІГҐГ°Г Г¶ГЁГЁ
 int Fragment::getNumber()
 {
 	return Alterative.Number;

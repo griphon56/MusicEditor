@@ -42,12 +42,6 @@ HANDLE hwndThread1, hwndThread2, hTimer;
 
 HWND hStatusBar;
 
-HWND hBtnLoadFromFile;
-HWND hBtnTranspose;
-HWND hBtnTonality;
-HWND hBtnIntervalLength;
-HWND hBtnAddNoteAndInterval;
-HWND hBtnPrintTact;
 HWND scrollBarFrag;
 HWND Apply, editblock;
 
@@ -322,6 +316,30 @@ BOOL CALLBACK DlgProc(HWND hwnd, UINT Message, WPARAM wparam, LPARAM lparam)
 	return 0;
 }
 
+// Debug Pix потом удалить
+void drawPix(HWND hWnd, int x, int y)
+{
+	InvalidateRect(hWnd, NULL, TRUE);
+	RECT rectangle;
+	RECT clientRect;
+	InvalidateRect(hWnd, NULL, TRUE);
+	HDC hdc; //создаём контекст устройства
+	PAINTSTRUCT paintStruct; //создаём экземпляр структуры графического вывода
+	static int size = 5;
+
+	rectangle = { x,y,x + size,y + size };
+
+	hdc = BeginPaint(hWnd, &paintStruct);
+	GetClientRect(hWnd, &clientRect);
+
+	//рисуем квадрат
+	FillRect(hdc, &rectangle, HBRUSH(CreateSolidBrush(RGB(128, 0, 128))));
+	EndPaint(hWnd, &paintStruct);
+
+	ReleaseDC(hWnd, hdc);
+	DeleteObject(&rectangle);
+}
+
 LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 	char buffer = '1';
@@ -398,7 +416,7 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 				L"Выберите ноту:", WS_CHILD | WS_VISIBLE,
 				900, 10, 150, 20, hMainWnd, NULL, nullptr, NULL);
 
-			combo_add_note = CreateWindow(L"combobox", L"combo", WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | CBS_AUTOHSCROLL | WS_VSCROLL,
+			combo_add_note = CreateWindow(L"combobox", L"combo_add_note", WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | CBS_AUTOHSCROLL | WS_VSCROLL,
 				900, 40, 150, 200, hMainWnd, NULL, wc.hInstance, NULL);
 			TCHAR a_notes[7][10] =
 			{
@@ -419,7 +437,7 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 				L"Выберите alt:", WS_CHILD | WS_VISIBLE,
 				900, 70, 150, 20, hMainWnd, NULL, nullptr, NULL);
 
-			combo_add_note_alter = CreateWindow(L"combobox", L"combo", WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | CBS_AUTOHSCROLL | WS_VSCROLL,
+			combo_add_note_alter = CreateWindow(L"combobox", L"combo_add_note_alter", WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | CBS_AUTOHSCROLL | WS_VSCROLL,
 				900, 100, 150, 200, hMainWnd, NULL, wc.hInstance, NULL);
 			TCHAR a_alter[3][10] =
 			{
@@ -440,7 +458,7 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 				900, 130, 150, 20, hMainWnd, NULL, nullptr, NULL);
 
 			edit_add_note_dur = CreateWindow(L"EDIT",
-				L"0", WS_CHILD | WS_VISIBLE | WS_BORDER,
+				L"2", WS_CHILD | WS_VISIBLE | WS_BORDER,
 				900, 160, 150, 20, hMainWnd, NULL, nullptr, NULL);
 
 			CreateWindow(L"BUTTON", L"Добавить", BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | WS_TABSTOP, 900, 190, 150, 24, hMainWnd, (HMENU)ID_ADD_NOTE_FRAGMENT, wc.hInstance, NULL);
@@ -674,6 +692,12 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 						}
 
 					}
+					DestroyWindow(hGrBox);
+					hGrBox = CreateWindow(L"Button", L"Н О Т Ы", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 20, 10, 6 * buttonWidth + 250, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
+
+					frag1.printFragment(hGrBox, wc.hInstance);
+					UpdateWindow(hGrBox);
+					UpdateWindow(hMainWnd);
 				}
 					break;
 
@@ -783,7 +807,9 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 			//Узнаем какой фрагмент был выбран.
 			hDC=GetDC(hMainWnd);
 			x=LOWORD(lParam) - 20; //узнаём координаты
-			y=HIWORD(lParam) - 50;
+			y=HIWORD(lParam) - 10;
+
+			// drawPix(hMainWnd, x, y);
 
 			if(x < 0 || y < 0 || y > 400 || x >  6 * buttonWidth + 370) break;
 
@@ -795,10 +821,8 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 				
 				lastClick = elemnt;
 			}
-		
 
 		break;
-			return 0;
 
 		case WM_CTLCOLORSTATIC:
 				switch (wParam)

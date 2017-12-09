@@ -1,4 +1,4 @@
-#include "BeatLine.h"
+﻿#include "BeatLine.h"
 #include "Chrd.h"
 #include "Fragment.h"
 #include "Pause.h"

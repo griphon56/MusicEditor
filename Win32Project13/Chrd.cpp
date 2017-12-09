@@ -1,14 +1,14 @@
-#include "Chrd.h"
+п»ї#include "Chrd.h"
 
-// Добавить ноту в аккорд.
-// obj element - нота.
+// Р”РѕР±Р°РІРёС‚СЊ РЅРѕС‚Сѓ РІ Р°РєРєРѕСЂРґ.
+// obj element - РЅРѕС‚Р°.
 void Chrd::addNote(Note *element)
 {
 	Note * newelement = new Note(*element);
 	Notes.push_back(newelement);
 }
 
-// Вывести аккорд
+// Р’С‹РІРµСЃС‚Рё Р°РєРєРѕСЂРґ
 void Chrd::Print(string *str)
 {
 	string workstr = "";
@@ -22,7 +22,7 @@ void Chrd::Print(string *str)
 	str[0] = workstr;
 }
 
-// Получить ноты аккорда.
+// РџРѕР»СѓС‡РёС‚СЊ РЅРѕС‚С‹ Р°РєРєРѕСЂРґР°.
 vector<Note *>Chrd::getNotes()
 {
 	return Notes;

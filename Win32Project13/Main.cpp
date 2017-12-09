@@ -1,4 +1,4 @@
-#pragma comment (lib, "comctl32")
+п»ї#pragma comment (lib, "comctl32")
 
 #include "BeatLine.h"
 #include "Chrd.h"
@@ -9,15 +9,15 @@
 
 #define ID_BUTTON_LOAD_FROM_FILE 1000
 
-// Транспонирование
+// РўСЂР°РЅСЃРїРѕРЅРёСЂРѕРІР°РЅРёРµ
 #define ID_Transpose 1002  
-// Тональность
+// РўРѕРЅР°Р»СЊРЅРѕСЃС‚СЊ
 #define ID_Tonality 1003
-// Длинна интервала
+// Р”Р»РёРЅРЅР° РёРЅС‚РµСЂРІР°Р»Р°
 #define ID_IntervalLength 1004
-// Добавить ноту/интервал 
+// Р”РѕР±Р°РІРёС‚СЊ РЅРѕС‚Сѓ/РёРЅС‚РµСЂРІР°Р» 
 #define ID_AddNoteAndInterval 1005
-// Вывести такт
+// Р’С‹РІРµСЃС‚Рё С‚Р°РєС‚
 #define ID_PrintTact 1006
 #define ID_setBeatLines 1007
 
@@ -58,7 +58,7 @@ bool suspend;
 	char szClassName[] = "MyClass";
 	TCHAR szChildClassName[] = L"SettingsWindow";
 
-HANDLE hCOM; // хендл сом порта
+HANDLE hCOM; // С…РµРЅРґР» СЃРѕРј РїРѕСЂС‚Р°
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
 LONG WINAPI ChildWndProc(HWND, UINT, WPARAM,LPARAM);
 int childwindNum;
@@ -75,14 +75,14 @@ typedef struct paintParam
 	Fragment *frag;
 } beatSTRUCT, *beatSTRUCT_P;
 
-//Поток расстановки тактовых черт
+//РџРѕС‚РѕРє СЂР°СЃСЃС‚Р°РЅРѕРІРєРё С‚Р°РєС‚РѕРІС‹С… С‡РµСЂС‚
 DWORD WINAPI Thread1Proc(CONST LPVOID lpParam) {
 
 	frag1.setBeatLines();
 
 	Sleep(3000);
 
-	SetWindowText(hStatusBar, L"Расстановка завершена");
+	SetWindowText(hStatusBar, L"Р Р°СЃСЃС‚Р°РЅРѕРІРєР° Р·Р°РІРµСЂС€РµРЅР°");
 	
 	frag1.printFragment(hGrBox, wc.hInstance);
 					
@@ -91,7 +91,7 @@ DWORD WINAPI Thread1Proc(CONST LPVOID lpParam) {
 	ExitThread(0);
 }
 
-// Поток определяет тональность
+// РџРѕС‚РѕРє РѕРїСЂРµРґРµР»СЏРµС‚ С‚РѕРЅР°Р»СЊРЅРѕСЃС‚СЊ
 DWORD WINAPI Thread2Proc(CONST LPVOID lpParam) {
 
 	string tonality;
@@ -100,12 +100,12 @@ DWORD WINAPI Thread2Proc(CONST LPVOID lpParam) {
 	tonality = frag1.getTonality();
 	mbstowcs(wtext, tonality.c_str(), strlen(tonality.c_str())+1);
 	ptr = wtext;
-	MessageBox(hMainWnd, ptr, L"Определение тональности", MB_OK);
+	MessageBox(hMainWnd, ptr, L"РћРїСЂРµРґРµР»РµРЅРёРµ С‚РѕРЅР°Р»СЊРЅРѕСЃС‚Рё", MB_OK);
 
 	ExitThread(0);
 }
 
-// Метод перевода строки в формат LPWSTR
+// РњРµС‚РѕРґ РїРµСЂРµРІРѕРґР° СЃС‚СЂРѕРєРё РІ С„РѕСЂРјР°С‚ LPWSTR
 LPWSTR toLPWSTR(string alters)
 {
 	wchar_t wtext[1024];
@@ -114,7 +114,7 @@ LPWSTR toLPWSTR(string alters)
 	return ptr;
 }
 
-// Создаем статус бар
+// РЎРѕР·РґР°РµРј СЃС‚Р°С‚СѓСЃ Р±Р°СЂ
 //
 //
 HWND DoCreateStatusBar(HWND hwndParent, int idStatus, HINSTANCE
@@ -128,7 +128,7 @@ HWND DoCreateStatusBar(HWND hwndParent, int idStatus, HINSTANCE
 
 	InitCommonControls();
 
-	// Дескриптор статус бара
+	// Р”РµСЃРєСЂРёРїС‚РѕСЂ СЃС‚Р°С‚СѓСЃ Р±Р°СЂР°
 	hwndStatus = CreateWindowEx(
 		0,STATUSCLASSNAME,         
 		(PCTSTR)NULL,           
@@ -158,40 +158,40 @@ HWND DoCreateStatusBar(HWND hwndParent, int idStatus, HINSTANCE
 	return hwndStatus;
 }
 
-// Создание вертикального скролла
+// РЎРѕР·РґР°РЅРёРµ РІРµСЂС‚РёРєР°Р»СЊРЅРѕРіРѕ СЃРєСЂРѕР»Р»Р°
 HWND CreateAVerticalScrollBar(HWND hwndParent, int sbHeight)
 {
     RECT rect;
 
-	// Получить размеры клиентской области родительского окна;
+	// РџРѕР»СѓС‡РёС‚СЊ СЂР°Р·РјРµСЂС‹ РєР»РёРµРЅС‚СЃРєРѕР№ РѕР±Р»Р°СЃС‚Рё СЂРѕРґРёС‚РµР»СЊСЃРєРѕРіРѕ РѕРєРЅР°;
     if (!GetClientRect(hwndParent, &rect))
         return NULL;
 
-    // Создать scroll bar
+    // РЎРѕР·РґР°С‚СЊ scroll bar
 	return (CreateWindowEx(
-		0, // расширенных стилей
-		L"SCROLLBAR", // класс управления полосой прокрутки
-		(PTSTR)NULL, // текста окна
-		WS_CHILD | WS_VISIBLE // стили окон
-		| SBS_VERT, // стиль горизонтальной полосы прокрутки
-		rect.left, // горизонтальное положение
-		rect.bottom - sbHeight, // вертикальное положение
-		rect.right, // ширина полосы прокрутки
-		sbHeight, // высота полосы прокрутки
-		hwndParent, // обращение к главному окну
-		(HMENU)NULL, // указатель меню
-		wc.hInstance, // экземпляр, владеющий этим окном
-		(PVOID)NULL // указатель не нужен
+		0, // СЂР°СЃС€РёСЂРµРЅРЅС‹С… СЃС‚РёР»РµР№
+		L"SCROLLBAR", // РєР»Р°СЃСЃ СѓРїСЂР°РІР»РµРЅРёСЏ РїРѕР»РѕСЃРѕР№ РїСЂРѕРєСЂСѓС‚РєРё
+		(PTSTR)NULL, // С‚РµРєСЃС‚Р° РѕРєРЅР°
+		WS_CHILD | WS_VISIBLE // СЃС‚РёР»Рё РѕРєРѕРЅ
+		| SBS_VERT, // СЃС‚РёР»СЊ РіРѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅРѕР№ РїРѕР»РѕСЃС‹ РїСЂРѕРєСЂСѓС‚РєРё
+		rect.left, // РіРѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅРѕРµ РїРѕР»РѕР¶РµРЅРёРµ
+		rect.bottom - sbHeight, // РІРµСЂС‚РёРєР°Р»СЊРЅРѕРµ РїРѕР»РѕР¶РµРЅРёРµ
+		rect.right, // С€РёСЂРёРЅР° РїРѕР»РѕСЃС‹ РїСЂРѕРєСЂСѓС‚РєРё
+		sbHeight, // РІС‹СЃРѕС‚Р° РїРѕР»РѕСЃС‹ РїСЂРѕРєСЂСѓС‚РєРё
+		hwndParent, // РѕР±СЂР°С‰РµРЅРёРµ Рє РіР»Р°РІРЅРѕРјСѓ РѕРєРЅСѓ
+		(HMENU)NULL, // СѓРєР°Р·Р°С‚РµР»СЊ РјРµРЅСЋ
+		wc.hInstance, // СЌРєР·РµРјРїР»СЏСЂ, РІР»Р°РґРµСЋС‰РёР№ СЌС‚РёРј РѕРєРЅРѕРј
+		(PVOID)NULL // СѓРєР°Р·Р°С‚РµР»СЊ РЅРµ РЅСѓР¶РµРЅ
 	));
 }
 
-// Создает всплывающую подсказку для элемента в диалоговом окне.
-// Параметры:
-// idTool - идентификатор элемента диалогового окна.
-// nDlg - дескриптор окна диалогового окна.
-// pszText - строка, используемая в качестве текста всплывающей подсказки.
+// РЎРѕР·РґР°РµС‚ РІСЃРїР»С‹РІР°СЋС‰СѓСЋ РїРѕРґСЃРєР°Р·РєСѓ РґР»СЏ СЌР»РµРјРµРЅС‚Р° РІ РґРёР°Р»РѕРіРѕРІРѕРј РѕРєРЅРµ.
+// РџР°СЂР°РјРµС‚СЂС‹:
+// idTool - РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ СЌР»РµРјРµРЅС‚Р° РґРёР°Р»РѕРіРѕРІРѕРіРѕ РѕРєРЅР°.
+// nDlg - РґРµСЃРєСЂРёРїС‚РѕСЂ РѕРєРЅР° РґРёР°Р»РѕРіРѕРІРѕРіРѕ РѕРєРЅР°.
+// pszText - СЃС‚СЂРѕРєР°, РёСЃРїРѕР»СЊР·СѓРµРјР°СЏ РІ РєР°С‡РµСЃС‚РІРµ С‚РµРєСЃС‚Р° РІСЃРїР»С‹РІР°СЋС‰РµР№ РїРѕРґСЃРєР°Р·РєРё.
 // return:
-// Dсплывающую подсказку.
+// DСЃРїР»С‹РІР°СЋС‰СѓСЋ РїРѕРґСЃРєР°Р·РєСѓ.
 HWND CreateToolTip(int toolID, HWND hDlg, HINSTANCE hInst, PTSTR pszText)
 {
 	if (!toolID || !hDlg || !pszText)
@@ -253,7 +253,7 @@ HWND DoCreateTooltip(HWND hwndOwner)
 			ti.hwnd = hwndOwner;
 			ti.hinst = wc.hInstance;
 			ti.uId = (UINT)id;
-			ti.lpszText = L"Подсказка";
+			ti.lpszText = L"РџРѕРґСЃРєР°Р·РєР°";
 
 			if (!SendMessage(hwndTT, TTM_ADDTOOL, 0,
 				(LPARAM)(LPTOOLINFO)&ti))
@@ -267,7 +267,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	MSG msg;
 
-	// Заполняем структуру класса окна
+	// Р—Р°РїРѕР»РЅСЏРµРј СЃС‚СЂСѓРєС‚СѓСЂСѓ РєР»Р°СЃСЃР° РѕРєРЅР°
 	wc.cbSize = sizeof(wc);
 	wc.style = CS_HREDRAW | CS_VREDRAW;
 	wc.lpfnWndProc = WndProc; //WndProc;
@@ -281,25 +281,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	wc.lpszClassName = L"MyClass";
 	wc.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
 
-	// Регистрируем класс окна
+	// Р РµРіРёСЃС‚СЂРёСЂСѓРµРј РєР»Р°СЃСЃ РѕРєРЅР°
 	if (!RegisterClassEx(&wc)) {
-		MessageBox(NULL, L"Не удается зарегистрировать класс.", L"Ошибка", MB_OK);
+		MessageBox(NULL, L"РќРµ СѓРґР°РµС‚СЃСЏ Р·Р°СЂРµРіРёСЃС‚СЂРёСЂРѕРІР°С‚СЊ РєР»Р°СЃСЃ.", L"РћС€РёР±РєР°", MB_OK);
 		return 0;
 	}
 
-	// Создаем основное окно приложения
+	// РЎРѕР·РґР°РµРј РѕСЃРЅРѕРІРЅРѕРµ РѕРєРЅРѕ РїСЂРёР»РѕР¶РµРЅРёСЏ
 	hMainWnd = CreateWindowW(wc.lpszClassName, L"WndProc", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, 1100, 500, NULL, NULL, hInstance, NULL);
 	if (!hMainWnd) {
-		MessageBox(NULL, L"Не удалось создать главное окно.", L"Ошибка", MB_OK);
+		MessageBox(NULL, L"РќРµ СѓРґР°Р»РѕСЃСЊ СЃРѕР·РґР°С‚СЊ РіР»Р°РІРЅРѕРµ РѕРєРЅРѕ.", L"РћС€РёР±РєР°", MB_OK);
 		return 0;
 	}
-	SetWindowText(hMainWnd, L"Музыкальный фрагмент");
+	SetWindowText(hMainWnd, L"РњСѓР·С‹РєР°Р»СЊРЅС‹Р№ С„СЂР°РіРјРµРЅС‚");
 
-	// Показываем окно
+	// РџРѕРєР°Р·С‹РІР°РµРј РѕРєРЅРѕ
 	ShowWindow(hMainWnd, nCmdShow);
 	UpdateWindow(hMainWnd);
 
-	// Выполняем цикл обработки сообщений до закрытия приложения
+	// Р’С‹РїРѕР»РЅСЏРµРј С†РёРєР» РѕР±СЂР°Р±РѕС‚РєРё СЃРѕРѕР±С‰РµРЅРёР№ РґРѕ Р·Р°РєСЂС‹С‚РёСЏ РїСЂРёР»РѕР¶РµРЅРёСЏ
 	while(GetMessage(&msg, NULL, 0, 0)) {
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
@@ -357,11 +357,11 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 	beatSTRUCT_P param;
 
 	switch (msg) {
-		int x,y; //координаты
+		int x,y; //РєРѕРѕСЂРґРёРЅР°С‚С‹
 
 		case WM_CREATE:
 		{
-			// Создаем скрол бар
+			// РЎРѕР·РґР°РµРј СЃРєСЂРѕР» Р±Р°СЂ
 			Scroll1 = CreateWindow(L"scrollbar", NULL, SBS_VERT | SBS_BOTTOMALIGN | WS_CHILD | WS_VISIBLE, 6 * buttonWidth + 250 + 20, 18, 16, 392, hMainWnd, (HMENU)0, NULL, NULL);
 
 			nPage = 10;
@@ -375,27 +375,27 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 			/*CreateToolbarEx(hMainWnd, WS_CHILD | WS_VISIBLE | CCS_TOP, 1,
 			0, HINST_COMMCTRL, IDB_STD_SMALL_COLOR, tbb, 7, 0, 0, 0, 0, sizeof(TBBUTTON));*/
 
-			// Лейбл  "Фрагмент"
-			hGrBox = CreateWindow(L"Button", L"Н О Т Ы", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 20, 10, 6 * buttonWidth + 250, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
+			// Р›РµР№Р±Р»  "Р¤СЂР°РіРјРµРЅС‚"
+			hGrBox = CreateWindow(L"Button", L"Рќ Рћ Рў Р«", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 20, 10, 6 * buttonWidth + 250, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
 
 			main_menu = CreateMenu();
 			menu_view = CreatePopupMenu();
-			AppendMenu(main_menu, MF_STRING | MF_POPUP, (UINT)menu_view, L"&Ноты");
-			AppendMenu(menu_view, MF_STRING, FILE_MENU_ID, L"Открыть");
-			AppendMenu(menu_view, MF_STRING, ID_Transpose, L"Перемещение по октавам");
-			AppendMenu(menu_view, MF_STRING, ID_setBeatLines, L"Расстановка тактов");
-			AppendMenu(menu_view, MF_STRING, ID_Tonality, L"Определение тональности");
-			AppendMenu(menu_view, MF_STRING, ID_PrintTact, L"Вывести такт");
-			AppendMenu(menu_view, MF_STRING, ID_IntervalLength, L"Длина интервала");
-			AppendMenu(menu_view, MF_STRING, ID_AddNoteAndInterval, L"Сложение ноты с интервалов");
+			AppendMenu(main_menu, MF_STRING | MF_POPUP, (UINT)menu_view, L"&РќРѕС‚С‹");
+			AppendMenu(menu_view, MF_STRING, FILE_MENU_ID, L"РћС‚РєСЂС‹С‚СЊ");
+			AppendMenu(menu_view, MF_STRING, ID_Transpose, L"РџРµСЂРµРјРµС‰РµРЅРёРµ РїРѕ РѕРєС‚Р°РІР°Рј");
+			AppendMenu(menu_view, MF_STRING, ID_setBeatLines, L"Р Р°СЃСЃС‚Р°РЅРѕРІРєР° С‚Р°РєС‚РѕРІ");
+			AppendMenu(menu_view, MF_STRING, ID_Tonality, L"РћРїСЂРµРґРµР»РµРЅРёРµ С‚РѕРЅР°Р»СЊРЅРѕСЃС‚Рё");
+			AppendMenu(menu_view, MF_STRING, ID_PrintTact, L"Р’С‹РІРµСЃС‚Рё С‚Р°РєС‚");
+			AppendMenu(menu_view, MF_STRING, ID_IntervalLength, L"Р”Р»РёРЅР° РёРЅС‚РµСЂРІР°Р»Р°");
+			AppendMenu(menu_view, MF_STRING, ID_AddNoteAndInterval, L"РЎР»РѕР¶РµРЅРёРµ РЅРѕС‚С‹ СЃ РёРЅС‚РµСЂРІР°Р»РѕРІ");
 
-			AppendMenu(main_menu, MF_STRING, ABOUT_MENU_ID, L"О программе");
-			AppendMenu(main_menu, MF_STRING, EXIT_MENU_ID, L"Выход");
+			AppendMenu(main_menu, MF_STRING, ABOUT_MENU_ID, L"Рћ РїСЂРѕРіСЂР°РјРјРµ");
+			AppendMenu(main_menu, MF_STRING, EXIT_MENU_ID, L"Р’С‹С…РѕРґ");
 			SetMenu(hMainWnd, main_menu);
 
-			//Добавление ноты
+			//Р”РѕР±Р°РІР»РµРЅРёРµ РЅРѕС‚С‹
 			CreateWindow(L"STATIC",
-				L"Выберите ноту:", WS_CHILD | WS_VISIBLE,
+				L"Р’С‹Р±РµСЂРёС‚Рµ РЅРѕС‚Сѓ:", WS_CHILD | WS_VISIBLE,
 				900, 10, 150, 20, hMainWnd, NULL, nullptr, NULL);
 
 			combo_add_note = CreateWindow(L"combobox", L"combo", WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | CBS_AUTOHSCROLL | WS_VSCROLL,
@@ -416,7 +416,7 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 			SendMessage(combo_add_note, CB_SETCURSEL, (WPARAM)1, (LPARAM)0);
 			//---------------------------------------------------------------------------------------------------
 			CreateWindow(L"STATIC",
-				L"Выберите alt:", WS_CHILD | WS_VISIBLE,
+				L"Р’С‹Р±РµСЂРёС‚Рµ alt:", WS_CHILD | WS_VISIBLE,
 				900, 70, 150, 20, hMainWnd, NULL, nullptr, NULL);
 
 			combo_add_note_alter = CreateWindow(L"combobox", L"combo", WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | CBS_AUTOHSCROLL | WS_VSCROLL,
@@ -436,14 +436,14 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 			SendMessage(combo_add_note_alter, CB_SETCURSEL, (WPARAM)1, (LPARAM)0);
 			//=========================================================================================
 			CreateWindow(L"STATIC",
-				L"Укажите dur:", WS_CHILD | WS_VISIBLE,
+				L"РЈРєР°Р¶РёС‚Рµ dur:", WS_CHILD | WS_VISIBLE,
 				900, 130, 150, 20, hMainWnd, NULL, nullptr, NULL);
 
 			edit_add_note_dur = CreateWindow(L"EDIT",
 				L"0", WS_CHILD | WS_VISIBLE | WS_BORDER,
 				900, 160, 150, 20, hMainWnd, NULL, nullptr, NULL);
 
-			CreateWindow(L"BUTTON", L"Добавить", BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | WS_TABSTOP, 900, 190, 150, 24, hMainWnd, (HMENU)ID_ADD_NOTE_FRAGMENT, wc.hInstance, NULL);
+			CreateWindow(L"BUTTON", L"Р”РѕР±Р°РІРёС‚СЊ", BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | WS_TABSTOP, 900, 190, 150, 24, hMainWnd, (HMENU)ID_ADD_NOTE_FRAGMENT, wc.hInstance, NULL);
 
 			DestroyMenu(main_menu);
 			UpdateWindow(hMainWnd);
@@ -532,7 +532,7 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 					frag1.readFragment(string(arr_w.begin(), arr_w.end()));
 
 					DestroyWindow(hGrBox);
-					hGrBox = CreateWindow(L"Button", L"Н О Т Ы", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 20, 10, 6 * buttonWidth + 250, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
+					hGrBox = CreateWindow(L"Button", L"Рќ Рћ Рў Р«", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 20, 10, 6 * buttonWidth + 250, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
 
 					frag1.printFragment(hGrBox, wc.hInstance);
 					UpdateWindow(hGrBox);
@@ -543,7 +543,7 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 				case ID_Transpose:
 				{
 					if (frag1.getLength() == 0) {
-						MessageBox(NULL, L"Не выбран фрагмент!", L"Ошибка", MB_OK);
+						MessageBox(NULL, L"РќРµ РІС‹Р±СЂР°РЅ С„СЂР°РіРјРµРЅС‚!", L"РћС€РёР±РєР°", MB_OK);
 						return 0;
 					}
 					childwindNum = 1;
@@ -558,7 +558,7 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 
 					hChildWindow1 = CreateWindow(
 						szChildClassName,
-						L"Выбор способа транспонирования",
+						L"Р’С‹Р±РѕСЂ СЃРїРѕСЃРѕР±Р° С‚СЂР°РЅСЃРїРѕРЅРёСЂРѕРІР°РЅРёСЏ",
 						WS_OVERLAPPEDWINDOW,
 						CW_USEDEFAULT,
 						NULL,
@@ -579,14 +579,14 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 				case ID_setBeatLines:
 				{
 					if (frag1.getLength() == 0) {
-						MessageBox(NULL, L"Не выбран фрагмент!", L"Ошибка", MB_OK);
+						MessageBox(NULL, L"РќРµ РІС‹Р±СЂР°РЅ С„СЂР°РіРјРµРЅС‚!", L"РћС€РёР±РєР°", MB_OK);
 						return 0;
 					}
 					DestroyWindow(hGrBox);
-					hGrBox = CreateWindow(L"Button", L"Н О Т Ы", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 20, 10, 6 * buttonWidth + 250, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
+					hGrBox = CreateWindow(L"Button", L"Рќ Рћ Рў Р«", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 20, 10, 6 * buttonWidth + 250, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
 
 					hStatusBar = DoCreateStatusBar(hMainWnd, 0, wc.hInstance, 1);
-					SetWindowText(hStatusBar, L"Идет расстановка тактовых черт..");
+					SetWindowText(hStatusBar, L"РРґРµС‚ СЂР°СЃСЃС‚Р°РЅРѕРІРєР° С‚Р°РєС‚РѕРІС‹С… С‡РµСЂС‚..");
 
 					hwndThread1 = CreateThread(NULL, 0, &Thread1Proc, NULL, NULL, NULL);
 				}
@@ -595,11 +595,11 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 				case ID_Tonality:
 				{
 					if (frag1.getLength() == 0) {
-						MessageBox(NULL, L"Не выбран фрагмент!", L"Ошибка", MB_OK);
+						MessageBox(NULL, L"РќРµ РІС‹Р±СЂР°РЅ С„СЂР°РіРјРµРЅС‚!", L"РћС€РёР±РєР°", MB_OK);
 						return 0;
 					}
 
-					// Определение тональности.
+					// РћРїСЂРµРґРµР»РµРЅРёРµ С‚РѕРЅР°Р»СЊРЅРѕСЃС‚Рё.
 					hwndThread2 = CreateThread(NULL, 0, &Thread2Proc, NULL, NULL, NULL);
 				}
 					break;
@@ -607,7 +607,7 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 				case ID_PrintTact:
 				{
 					if (frag1.getLength() == 0) {
-						MessageBox(NULL, L"Не выбран фрагмент!", L"Ошибка", MB_OK);
+						MessageBox(NULL, L"РќРµ РІС‹Р±СЂР°РЅ С„СЂР°РіРјРµРЅС‚!", L"РћС€РёР±РєР°", MB_OK);
 						return 0;
 					}
 
@@ -623,7 +623,7 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 
 					hChildWindow2 = CreateWindow(
 						szChildClassName,
-						L"Выбор номера такта",
+						L"Р’С‹Р±РѕСЂ РЅРѕРјРµСЂР° С‚Р°РєС‚Р°",
 						WS_OVERLAPPEDWINDOW,
 						CW_USEDEFAULT,
 						NULL,
@@ -644,12 +644,12 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 				case ID_IntervalLength:
 				{
 					if (frag1.getLength() == 0) {
-						MessageBox(NULL, L"Не выбран фрагмент!", L"Ошибка", MB_OK);
+						MessageBox(NULL, L"РќРµ РІС‹Р±СЂР°РЅ С„СЂР°РіРјРµРЅС‚!", L"РћС€РёР±РєР°", MB_OK);
 						return 0;
 					}
 
 					if (lastClick == nullptr || prelastClick == nullptr)
-						MessageBox(NULL, L"Выберите две ноты!", L"Ошибка", MB_OK);
+						MessageBox(NULL, L"Р’С‹Р±РµСЂРёС‚Рµ РґРІРµ РЅРѕС‚С‹!", L"РћС€РёР±РєР°", MB_OK);
 
 					else
 					{
@@ -680,12 +680,12 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 				case ID_AddNoteAndInterval:
 				{
 					if (frag1.getLength() == 0) {
-						MessageBox(NULL, L"Не выбран фрагмент!", L"Ошибка", MB_OK);
+						MessageBox(NULL, L"РќРµ РІС‹Р±СЂР°РЅ С„СЂР°РіРјРµРЅС‚!", L"РћС€РёР±РєР°", MB_OK);
 						return 0;
 					}
 
 					if (lastClick == nullptr)
-						MessageBox(NULL, L"Выберите ноту!", L"Ошибка", MB_OK);
+						MessageBox(NULL, L"Р’С‹Р±РµСЂРёС‚Рµ РЅРѕС‚Сѓ!", L"РћС€РёР±РєР°", MB_OK);
 
 					else
 					{
@@ -714,7 +714,7 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 
 							hChildWindow2 = CreateWindow(
 								szChildClassName,
-								L"Задайте интервал",
+								L"Р—Р°РґР°Р№С‚Рµ РёРЅС‚РµСЂРІР°Р»",
 								WS_OVERLAPPEDWINDOW,
 								CW_USEDEFAULT,
 								NULL,
@@ -736,23 +736,23 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 
 				case ID_ADD_NOTE_FRAGMENT:
 				{
-					// Получить содержимое из комбобокса (Ноту)
+					// РџРѕР»СѓС‡РёС‚СЊ СЃРѕРґРµСЂР¶РёРјРѕРµ РёР· РєРѕРјР±РѕР±РѕРєСЃР° (РќРѕС‚Сѓ)
 					int noteIndex = SendMessage(combo_add_note, (UINT)CB_GETCURSEL, (WPARAM)0, (LPARAM)0);
 					TCHAR  name_note[5];
 					(TCHAR)SendMessage(combo_add_note, (UINT)CB_GETLBTEXT, (WPARAM)noteIndex, (LPARAM)name_note);
-					// Получить содержимое из комбобокса (Альтерацию)
+					// РџРѕР»СѓС‡РёС‚СЊ СЃРѕРґРµСЂР¶РёРјРѕРµ РёР· РєРѕРјР±РѕР±РѕРєСЃР° (РђР»СЊС‚РµСЂР°С†РёСЋ)
 					int alterIndex = SendMessage(combo_add_note_alter, (UINT)CB_GETCURSEL, (WPARAM)0, (LPARAM)0);
 					TCHAR  alter_note[5];
 					(TCHAR)SendMessage(combo_add_note_alter, (UINT)CB_GETLBTEXT, (WPARAM)alterIndex, (LPARAM)alter_note);
-					// Получить содержимое из эдита (Длительность)
+					// РџРѕР»СѓС‡РёС‚СЊ СЃРѕРґРµСЂР¶РёРјРѕРµ РёР· СЌРґРёС‚Р° (Р”Р»РёС‚РµР»СЊРЅРѕСЃС‚СЊ)
 					TCHAR buff[10];
 					GetWindowText(edit_add_note_dur, buff, 10);
-					// Дабавляем ноту во фрагмент
+					// Р”Р°Р±Р°РІР»СЏРµРј РЅРѕС‚Сѓ РІРѕ С„СЂР°РіРјРµРЅС‚
 					frag1.addNoteFragment(name_note[0], alter_note[0], 2, (INT)buff[0]);
 
-					// Перерисовываем и выводим
+					// РџРµСЂРµСЂРёСЃРѕРІС‹РІР°РµРј Рё РІС‹РІРѕРґРёРј
 					DestroyWindow(hGrBox);
-					hGrBox = CreateWindow(L"Button", L"Н О Т Ы", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 20, 10, 6 * buttonWidth + 250, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
+					hGrBox = CreateWindow(L"Button", L"Рќ Рћ Рў Р«", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 20, 10, 6 * buttonWidth + 250, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
 
 					frag1.printFragment(hGrBox, wc.hInstance);
 					UpdateWindow(hGrBox);
@@ -780,9 +780,9 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 			}
 
 		case WM_LBUTTONDOWN:
-			//Узнаем какой фрагмент был выбран.
+			//РЈР·РЅР°РµРј РєР°РєРѕР№ С„СЂР°РіРјРµРЅС‚ Р±С‹Р» РІС‹Р±СЂР°РЅ.
 			hDC=GetDC(hMainWnd);
-			x=LOWORD(lParam) - 20; //узнаём координаты
+			x=LOWORD(lParam) - 20; //СѓР·РЅР°С‘Рј РєРѕРѕСЂРґРёРЅР°С‚С‹
 			y=HIWORD(lParam) - 50;
 
 			if(x < 0 || y < 0 || y > 400 || x >  6 * buttonWidth + 370) break;
@@ -857,7 +857,7 @@ LONG WINAPI ChildWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lparam)
 			case 103:
 			{
 				DestroyWindow(hGrBox);
-				hGrBox = CreateWindow(L"Button", L"Н О Т Ы", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 20, 10, 6 * buttonWidth + 250, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
+				hGrBox = CreateWindow(L"Button", L"Рќ Рћ Рў Р«", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 20, 10, 6 * buttonWidth + 250, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
 				GetWindowText(editblock, buf, 10);
 
 				frag1.printTact(hGrBox, wc.hInstance, atoi((char*)buf));
@@ -889,7 +889,7 @@ LONG WINAPI ChildWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lparam)
 				MessageBox(NULL, ptr, L"", MB_OK);
 
 				DestroyWindow(hGrBox);
-				hGrBox = CreateWindow(L"Button", L"Н О Т Ы", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 20, 10, 6 * buttonWidth + 250, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
+				hGrBox = CreateWindow(L"Button", L"Рќ Рћ Рў Р«", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 20, 10, 6 * buttonWidth + 250, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
 
 				frag1.printFragment(hGrBox, wc.hInstance);
 				UpdateWindow(hGrBox);
@@ -912,40 +912,40 @@ LONG WINAPI ChildWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lparam)
 			{
 			case 1:
 				CreateWindow(L"STATIC",
-					L"Транспонировать вверх", WS_CHILD | WS_VISIBLE,
+					L"РўСЂР°РЅСЃРїРѕРЅРёСЂРѕРІР°С‚СЊ РІРІРµСЂС…", WS_CHILD | WS_VISIBLE,
 					10, 10, 200, 20, hWnd, (HMENU)150, nullptr, NULL);
-				CreateWindowEx(WS_EX_TRANSPARENT, L"BUTTON", L"Вверх",
+				CreateWindowEx(WS_EX_TRANSPARENT, L"BUTTON", L"Р’РІРµСЂС…",
 					WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
 					220, 10, 10, 10,
 					hWnd, (HMENU)151,
 					GetModuleHandle(NULL), 0);
 				CreateWindow(L"STATIC",
-					L"Транспонировать вниз", WS_CHILD | WS_VISIBLE,
+					L"РўСЂР°РЅСЃРїРѕРЅРёСЂРѕРІР°С‚СЊ РІРЅРёР·", WS_CHILD | WS_VISIBLE,
 					10, 40, 200, 20, hWnd, (HMENU)152, nullptr, NULL);
-				upPrior = CreateWindowEx(WS_EX_TRANSPARENT, L"BUTTON", L"Вниз",
+				upPrior = CreateWindowEx(WS_EX_TRANSPARENT, L"BUTTON", L"Р’РЅРёР·",
 					WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
 					220, 40, 10, 10,
 					hWnd, (HMENU)153,
 					GetModuleHandle(NULL), 0);
 				Button_SetCheck(upPrior, 1);
 
-				Apply = CreateWindow(L"BUTTON", L"Применить", BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | WS_TABSTOP, 95, 80, 110, 20, hWnd, (HMENU)102, wc.hInstance, NULL);
+				Apply = CreateWindow(L"BUTTON", L"РџСЂРёРјРµРЅРёС‚СЊ", BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | WS_TABSTOP, 95, 80, 110, 20, hWnd, (HMENU)102, wc.hInstance, NULL);
 				break;
 			case 2:
 				CreateWindow(L"STATIC",
-				L"Введите номер такта", WS_CHILD | WS_VISIBLE,
+				L"Р’РІРµРґРёС‚Рµ РЅРѕРјРµСЂ С‚Р°РєС‚Р°", WS_CHILD | WS_VISIBLE,
 				10, 10, 200, 20, hWnd, (HMENU)154, nullptr, NULL);
 
 				editblock = CreateWindow(L"EDIT",
 					L"1", WS_CHILD | WS_VISIBLE | WS_BORDER,
 				220, 10, 30, 20, hWnd, (HMENU)155, nullptr, NULL);
 
-			Apply = CreateWindow(L"BUTTON", L"Применить", BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | WS_TABSTOP, 95, 80, 110, 20, hWnd, (HMENU)103, wc.hInstance, NULL);
+			Apply = CreateWindow(L"BUTTON", L"РџСЂРёРјРµРЅРёС‚СЊ", BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | WS_TABSTOP, 95, 80, 110, 20, hWnd, (HMENU)103, wc.hInstance, NULL);
 				break;
 
 			case 3:
 				CreateWindow(L"STATIC",
-				L"Выберите интервал из списка:", WS_CHILD | WS_VISIBLE,
+				L"Р’С‹Р±РµСЂРёС‚Рµ РёРЅС‚РµСЂРІР°Р» РёР· СЃРїРёСЃРєР°:", WS_CHILD | WS_VISIBLE,
 				10, 10, 250, 20, hWnd, (HMENU)154, nullptr, NULL);
 
 				Combo1 = CreateWindow(L"combobox", L"combo", WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | CBS_AUTOHSCROLL | WS_VSCROLL, 10, 40, 100, 200, hWnd, (HMENU)ID_COMBO, wc.hInstance, NULL);
@@ -983,7 +983,7 @@ LONG WINAPI ChildWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lparam)
 
 			SendMessage(Combo1, CB_SETEXTENDEDUI,1, 0);
 
-			Apply = CreateWindow(L"BUTTON", L"Применить", BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | WS_TABSTOP, 95, 80, 110, 20, hWnd, (HMENU)104, wc.hInstance, NULL);
+			Apply = CreateWindow(L"BUTTON", L"РџСЂРёРјРµРЅРёС‚СЊ", BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | WS_TABSTOP, 95, 80, 110, 20, hWnd, (HMENU)104, wc.hInstance, NULL);
 			
 				break;
 

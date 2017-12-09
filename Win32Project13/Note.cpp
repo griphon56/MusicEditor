@@ -1,43 +1,43 @@
-#include "Note.h"
+п»ї#include "Note.h"
 #include "Fragment.h"
 
-// Получить название ноты
+// РџРѕР»СѓС‡РёС‚СЊ РЅР°Р·РІР°РЅРёРµ РЅРѕС‚С‹
 char Note::getName()
 {
 	return Name;
 }
 
-// Получить альтерацию (диез бемоль бекар)
+// РџРѕР»СѓС‡РёС‚СЊ Р°Р»СЊС‚РµСЂР°С†РёСЋ (РґРёРµР· Р±РµРјРѕР»СЊ Р±РµРєР°СЂ)
 char Note::getAlterative()
 {
 	return Alterative;
 }
 
-// Получить октаву
+// РџРѕР»СѓС‡РёС‚СЊ РѕРєС‚Р°РІСѓ
 int Note::getOctave()
 {
 	return Octave;
 }
 
-// Установить октаву 
+// РЈСЃС‚Р°РЅРѕРІРёС‚СЊ РѕРєС‚Р°РІСѓ 
 void Note::setOctave(int oct)
 {
 	Octave = oct;
 }
 
-// Установить название
+// РЈСЃС‚Р°РЅРѕРІРёС‚СЊ РЅР°Р·РІР°РЅРёРµ
 void Note::setName(char name)
 {
 	Name = name;
 }
 
-// Установить альтерацию
+// РЈСЃС‚Р°РЅРѕРІРёС‚СЊ Р°Р»СЊС‚РµСЂР°С†РёСЋ
 void Note::setAlterative(char alt)
 {
 	Alterative = alt;
 }
 
-// Вывести ноту
+// Р’С‹РІРµСЃС‚Рё РЅРѕС‚Сѓ
 void Note::Print(string *str)
 {
 	int type = atoi(&str[2][0]), number = atoi(&str[3][0]);
@@ -62,8 +62,8 @@ void Note::Print(string *str)
 
 }
 
-// Получить знак альтерации
-// char noteLetter - название ноты
+// РџРѕР»СѓС‡РёС‚СЊ Р·РЅР°Рє Р°Р»СЊС‚РµСЂР°С†РёРё
+// char noteLetter - РЅР°Р·РІР°РЅРёРµ РЅРѕС‚С‹
 int Note::getSharpOrder(char noteLetter)
 {
 	map<char, int> sharpOrder;
@@ -71,9 +71,9 @@ int Note::getSharpOrder(char noteLetter)
 	return sharpOrder[noteLetter];
 }
 
-// Получить альтерацию ноты
-// int type - Вид альтерации
-// int number - Номер ноты 
+// РџРѕР»СѓС‡РёС‚СЊ Р°Р»СЊС‚РµСЂР°С†РёСЋ РЅРѕС‚С‹
+// int type - Р’РёРґ Р°Р»СЊС‚РµСЂР°С†РёРё
+// int number - РќРѕРјРµСЂ РЅРѕС‚С‹ 
 void Note::getFullName(int type, int number)
 {
 	if (getAlterative() == ' ')
@@ -85,10 +85,10 @@ void Note::getFullName(int type, int number)
 	}
 }
 
-// Транспонирование вверх или вниз по октаве.
-// int interval - Интервал переноса.
-// int type - Вид альтерацие.
-// int number - Номер ноты.
+// РўСЂР°РЅСЃРїРѕРЅРёСЂРѕРІР°РЅРёРµ РІРІРµСЂС… РёР»Рё РІРЅРёР· РїРѕ РѕРєС‚Р°РІРµ.
+// int interval - РРЅС‚РµСЂРІР°Р» РїРµСЂРµРЅРѕСЃР°.
+// int type - Р’РёРґ Р°Р»СЊС‚РµСЂР°С†РёРµ.
+// int number - РќРѕРјРµСЂ РЅРѕС‚С‹.
 void Note::transpose(int interval, int type, int number)
 {
 	string noteName = " ";
@@ -114,7 +114,7 @@ void Note::transpose(int interval, int type, int number)
 	setAlterative(allNotes[type][j][1]);
 }
 
-// Метод перегрузки, к текущему интервалу прибавляет октаву.
+// РњРµС‚РѕРґ РїРµСЂРµРіСЂСѓР·РєРё, Рє С‚РµРєСѓС‰РµРјСѓ РёРЅС‚РµСЂРІР°Р»Сѓ РїСЂРёР±Р°РІР»СЏРµС‚ РѕРєС‚Р°РІСѓ.
 Note Note::operator + (int interval)
 {
 	Note *note = new Note(*this);

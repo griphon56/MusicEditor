@@ -1,12 +1,12 @@
-#include "Element.h"
+п»ї#include "Element.h"
 
-// Получить тип елементы.
+// РџРѕР»СѓС‡РёС‚СЊ С‚РёРї РµР»РµРјРµРЅС‚С‹.
 int Element::getType()
 {
 	return Type;
 }
 
-// Поучить длительность. (2/4 и тд)
+// РџРѕСѓС‡РёС‚СЊ РґР»РёС‚РµР»СЊРЅРѕСЃС‚СЊ. (2/4 Рё С‚Рґ)
 int Element::getDuration()
 {
 	return Duration;

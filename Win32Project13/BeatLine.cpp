@@ -1,13 +1,13 @@
-#include "BeatLine.h"
+п»ї#include "BeatLine.h"
 
-// Получить такт
+// РџРѕР»СѓС‡РёС‚СЊ С‚Р°РєС‚
 string BeatLine::getLineType()
 {
 	return lineType;
 }
 
-// Вывести такт
-// string str - такт 
+// Р’С‹РІРµСЃС‚Рё С‚Р°РєС‚
+// string str - С‚Р°РєС‚ 
 void BeatLine::Print(string *str)
 {
 	str[0] = "|";

@@ -1,6 +1,6 @@
-#include "Pause.h"
+п»ї#include "Pause.h"
 
-// Вывести паузу
+// Р’С‹РІРµСЃС‚Рё РїР°СѓР·Сѓ
 void Pause::Print(string *str)
 {
 	str[0] = "Pause";

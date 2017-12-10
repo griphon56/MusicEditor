@@ -33,10 +33,14 @@
 #define ID_COMBO 1011
 
 #define ID_ADD_NOTE_FRAGMENT 1012
+#define ID_ADD_PAUSE 1013
 
 const int buttonStyle = BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | WS_TABSTOP | BS_MULTILINE, 
 		  buttonWidth = 100,
 		  buttonHeight = 50;
+
+// Тональность установлена
+static bool FLAG_TONALITY = FALSE;
 
 HANDLE hwndThread1, hwndThread2, hTimer;
 
@@ -384,7 +388,7 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 
 			nPage = 10;
 			nPosMin = 1;
-			nPosMax = 390;
+			nPosMax = 100;
 			nCurPos = 0;
 
 			SetScrollRange(Scroll1, SB_CTL, nPosMin, nPosMax, TRUE);
@@ -393,7 +397,7 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 			/*CreateToolbarEx(hMainWnd, WS_CHILD | WS_VISIBLE | CCS_TOP, 1,
 			0, HINST_COMMCTRL, IDB_STD_SMALL_COLOR, tbb, 7, 0, 0, 0, 0, sizeof(TBBUTTON));*/
 
-			// Лейбл  "Фрагмент"
+			// Окно "Фрагмент"
 			hGrBox = CreateWindow(L"Button", L"Н О Т Ы", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 20, 10, 6 * buttonWidth + 250, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
 
 			main_menu = CreateMenu();
@@ -460,8 +464,10 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 			edit_add_note_dur = CreateWindow(L"EDIT",
 				L"2", WS_CHILD | WS_VISIBLE | WS_BORDER,
 				900, 160, 150, 20, hMainWnd, NULL, nullptr, NULL);
-
-			CreateWindow(L"BUTTON", L"Добавить", BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | WS_TABSTOP, 900, 190, 150, 24, hMainWnd, (HMENU)ID_ADD_NOTE_FRAGMENT, wc.hInstance, NULL);
+			//------------------------------------------------------------------------------------------
+			CreateWindow(L"BUTTON", L"Добавить паузу", BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | WS_TABSTOP, 900, 220, 150, 24, hMainWnd, (HMENU)ID_ADD_PAUSE, wc.hInstance, NULL);
+			
+			CreateWindow(L"BUTTON", L"Добавить", BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | WS_TABSTOP, 900, 250, 150, 24, hMainWnd, (HMENU)ID_ADD_NOTE_FRAGMENT, wc.hInstance, NULL);
 
 			DestroyMenu(main_menu);
 			UpdateWindow(hMainWnd);
@@ -553,7 +559,7 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 					hGrBox = CreateWindow(L"Button", L"Н О Т Ы", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 20, 10, 6 * buttonWidth + 250, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
 
 					frag1.printFragment(hGrBox, wc.hInstance);
-					frag1.setTonality(1, 4);
+					
 					UpdateWindow(hGrBox);
 					UpdateWindow(hMainWnd);
 				}
@@ -773,8 +779,40 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 					TCHAR buff[10];
 					GetWindowText(edit_add_note_dur, buff, 10);
 					// Дабавляем ноту во фрагмент
-					frag1.addNoteFragment(name_note[0], alter_note[0], 2, (INT)buff[0]);
+					int dur_note= _ttoi(buff);
+					frag1.addNoteFragment(name_note[0], alter_note[0], 2, dur_note);
 
+					// Перерисовываем и выводим
+					DestroyWindow(hGrBox);
+					hGrBox = CreateWindow(L"Button", L"Н О Т Ы", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 20, 10, 6 * buttonWidth + 250, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
+
+					frag1.printFragment(hGrBox, wc.hInstance);
+
+					// Устанавливаю тональность					
+					if (!FLAG_TONALITY)
+					{
+						FLAG_TONALITY = TRUE;
+						Note note;
+						int alter_n, name_n;
+
+						if (note.getAlterative() == '#' || note.getAlterative() == '_')
+							alter_n = 0;
+						else
+							alter_n = 1;
+
+						name_n = note.getSharpOrder(note.getName());
+
+						frag1.setTonality(alter_n, name_n);
+					}
+
+					UpdateWindow(hGrBox);
+					UpdateWindow(hMainWnd);
+				}
+				break;
+
+				case ID_ADD_PAUSE:
+				{
+					frag1.addElement(new Pause(2));
 					// Перерисовываем и выводим
 					DestroyWindow(hGrBox);
 					hGrBox = CreateWindow(L"Button", L"Н О Т Ы", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 20, 10, 6 * buttonWidth + 250, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);

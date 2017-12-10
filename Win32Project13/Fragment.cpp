@@ -69,7 +69,7 @@ void Fragment::setBeatLines()
 		if(Elements[i]->getType() != 3)
 			{
 				count += 16 / Elements[i]->getDuration();
-				if(count == Form.Numerator * 16 / Form.Denominator)
+				if(count > Form.Numerator * 16 / Form.Denominator)
 				{
 					Element *newLine = new BeatLine;
 					Elements.insert(Elements.begin() + i + 1, newLine);

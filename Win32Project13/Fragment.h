@@ -20,13 +20,16 @@ class Fragment
 	vector<Element *> Elements;
 
 public:
-	Fragment(int num = 4, int den = 4, int type = 0, int number = 0);
+	Fragment(int num = 2, int den = 4, int type = 0, int number = 0);
 	void addElement(Element *);
 	void transpose(int interval);
 	void setBeatLines();
 	void printFragment(HWND &wind, HINSTANCE &hInst);
 	int getInterval(Note *note1, Note* note2);
+
+	void setTonality(int type, int  number);
 	string getTonality();
+	
 	void printTact(HWND &wind, HINSTANCE &hInst, int number);
 	int getLength();
 	int getType();

@@ -553,6 +553,7 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 					hGrBox = CreateWindow(L"Button", L"Н О Т Ы", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 20, 10, 6 * buttonWidth + 250, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
 
 					frag1.printFragment(hGrBox, wc.hInstance);
+					frag1.setTonality(1, 4);
 					UpdateWindow(hGrBox);
 					UpdateWindow(hMainWnd);
 				}
@@ -811,7 +812,7 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam) 
 
 			// drawPix(hMainWnd, x, y);
 
-			if(x < 0 || y < 0 || y > 400 || x >  6 * buttonWidth + 370) break;
+			//if(x < 0 || y < 0 || y > 400 || x >  6 * buttonWidth + 370) break;
 
 			elemnt = frag1.findElement(x, y);
 			if((elemnt != nullptr) && (elemnt->getType() == 1))

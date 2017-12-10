@@ -1,6 +1,8 @@
 ﻿#include "BeatLine.h"
 #include "Chrd.h"
+#include "Element.h"
 #include "Fragment.h"
+#include "Note.h"
 #include "Pause.h"
 
 vector <HWND> elems;
@@ -182,6 +184,15 @@ int Fragment::getInterval(Note *note1, Note* note2)
 	}
 	return (j - k);
 
+}
+
+// Установить тональность
+// int type - Тип тональности
+// int  number - Номер
+void Fragment::setTonality(int type, int  number)
+{
+	Alterative.Type = type;
+	Alterative.Number = number;
 }
 
 // Получить тональность

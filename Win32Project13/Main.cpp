@@ -21,10 +21,13 @@
 #define ID_setBeatLines 1007
 #define ID_FragmentBox 1008
 #define RUN_BUTTON_ID 1009
+#define ID_CHRD_ADD 1020
 // MENU
 #define ABOUT_MENU_ID 103
 #define EXIT_MENU_ID 104
 #define FILE_MENU_ID 106
+#define CHRD_MENU_ID 107
+#define CHRD_COUNT_NOTE_ID 108
 // Скрол
 #define ID_SCROLL 1010
 #define ID_COMBO 1011
@@ -43,7 +46,7 @@ HWND hStatusBar;
 HWND scrollBarFrag;
 HWND Apply, editblock;
 HWND hGrBox, upPrior;
-HWND hDlg, hChildWindow1, hChildWindow2, hMainWnd;;
+HWND hDlg, hChildWindow1, hChildWindow2, hChildWindow4, hMainWnd;
 WNDCLASSEX wc;
 HANDLE hCOM; // хендл сом порта
 LRESULT CALLBACK WndProc(HWND, UINT, WPARAM, LPARAM);
@@ -147,75 +150,60 @@ HWND CreateAVerticalScrollBar(HWND hwndParent, int sbHeight)
 		rect.left, rect.bottom - sbHeight, rect.right, sbHeight, hwndParent, (HMENU)NULL, wc.hInstance, (PVOID)NULL));
 }
 
-// Создает всплывающую подсказку для элемента в диалоговом окне.
-// Параметры:
-// idTool - идентификатор элемента диалогового окна.
-// nDlg - дескриптор окна диалогового окна.
-// pszText - строка, используемая в качестве текста всплывающей подсказки.
-// return:
-// Dсплывающую подсказку.
-/*HWND CreateToolTip(int toolID, HWND hDlg, HINSTANCE hInst, PTSTR pszText)
+// ComboBox для нот.
+// HWND hwndParent - Дескриптор окна.
+HWND CreateComboBoxAddNote(HWND hwndParent,int width, int height, int x, int y)
 {
-HWND hwndTool = GetDlgItem(hDlg, toolID);
+	HWND hComboBox = CreateWindow(L"combobox", L" ",
+		WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST | CBS_AUTOHSCROLL | WS_VSCROLL,
+		width, height, x, y, hwndParent, NULL, wc.hInstance, NULL);
 
-if (!toolID || !hDlg || !pszText)
-return NULL;
+	TCHAR a_notes[7][10] = { TEXT("F"), TEXT("C"), TEXT("G"), TEXT("D"),
+		TEXT("A"), TEXT("E"), TEXT("B") };
+	TCHAR A[7];
+	memset(&A, 0, sizeof(A));
 
-if (!hwndTool)
-return NULL;
+	for (int k = 0; k < 7; k += 1)
+	{
+		wcscpy_s(A, sizeof(A) / sizeof(TCHAR), (TCHAR*)a_notes[k]);
+		SendMessage(hComboBox, (UINT)CB_ADDSTRING, (WPARAM)0, (LPARAM)A);
+	}
+	SendMessage(hComboBox, CB_SETCURSEL, (WPARAM)0, (LPARAM)0);
 
-HWND hwndTip = CreateWindowEx(NULL, TOOLTIPS_CLASS, NULL,
-WS_POPUP | TTS_ALWAYSTIP | TTS_BALLOON,
-CW_USEDEFAULT, CW_USEDEFAULT,
-CW_USEDEFAULT, CW_USEDEFAULT,
-hDlg, NULL,
-hInst, NULL);
-
-if (!hwndTip)
-return NULL;
-
-// Associate the tooltip with the tool.
-TOOLINFO toolInfo = { 0 };
-toolInfo.cbSize = sizeof(toolInfo);
-toolInfo.hwnd = hDlg;
-toolInfo.uFlags = TTF_IDISHWND | TTF_SUBCLASS;
-toolInfo.uId = (UINT_PTR)hwndTool;
-toolInfo.lpszText = pszText;
-
-if (!SendMessage(hwndTip, TTM_ADDTOOL, 0, (LPARAM)&toolInfo))
-{
-DestroyWindow(hwndTip);
-return NULL;
+	// Создать hComboBox
+	return hComboBox;
 }
 
-return hwndTip;
-}*/
-
-/*HWND DoCreateTooltip(HWND hwndOwner)
+// ComboBox для Альтерации.
+// HWND hwndParent - Дескриптор окна.
+HWND CreateComboBoxAddNoteAlter(HWND hwndParent,int width, int height, int x, int y)
 {
-HWND hwndTT;
-int row, col;
-TOOLINFO ti;
-int id = 0;
-InitCommonControls();
-hwndTT = CreateWindow(TOOLTIPS_CLASS, NULL, TTS_ALWAYSTIP,
-CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-NULL, (HMENU)NULL, wc.hInstance, NULL);
-if (hwndTT == (HWND)NULL)
-return (HWND)NULL;
+	HWND hComboBox = CreateWindow(L"combobox", L" ", WS_CHILD | WS_VISIBLE
+		| CBS_DROPDOWNLIST | CBS_AUTOHSCROLL | WS_VSCROLL, width, height, x, y, hwndParent, NULL, wc.hInstance, NULL);
 
-ti.cbSize = sizeof(TOOLINFO);
-ti.uFlags = 0;
-ti.hwnd = hwndOwner;
-ti.hinst = wc.hInstance;
-ti.uId = (UINT)id;
-ti.lpszText = L"Подсказка";
+	TCHAR a_alter[3][10] = { TEXT("_"), TEXT("b"), TEXT("#") };
+	TCHAR AA[3];
+	memset(&AA, 0, sizeof(AA));
 
-if (!SendMessage(hwndTT, TTM_ADDTOOL, 0,
-(LPARAM)(LPTOOLINFO)&ti))
-return NULL;
-return hwndTT;
-}*/
+	for (int k = 0; k < 3; k += 1)
+	{
+		wcscpy_s(AA, sizeof(AA) / sizeof(TCHAR), (TCHAR*)a_alter[k]);
+		SendMessage(hComboBox, (UINT)CB_ADDSTRING, (WPARAM)0, (LPARAM)AA);
+	}
+	SendMessage(hComboBox, CB_SETCURSEL, (WPARAM)0, (LPARAM)0);
+
+	// Создать hComboBox
+	return hComboBox;
+}
+
+// Fragment - окно с нотами и аккордами (Рабочая область)
+HWND CreateFragmentBox(HWND hMainWnd, int x, int y, int width, int height)
+{
+	HWND hFragmentBox = CreateWindow(L"Button", L"Рабочая область", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, x, y,
+		width, height, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
+
+	return hFragmentBox;
+}
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -362,12 +350,8 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		SetScrollRange(Scroll1, SB_CTL, nPosMin, nPosMax, TRUE);
 		SetScrollPos(Scroll1, SB_CTL, nCurPos, TRUE);
 
-		/*CreateToolbarEx(hMainWnd, WS_CHILD | WS_VISIBLE | CCS_TOP, 1,
-		0, HINST_COMMCTRL, IDB_STD_SMALL_COLOR, tbb, 7, 0, 0, 0, 0, sizeof(TBBUTTON));*/
-
 		// Окно "Фрагмент"
-		hGrBox = CreateWindow(L"Button", L"Ноты", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 20, 10,
-			6 * buttonWidth + 250, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
+		hGrBox = CreateFragmentBox(hMainWnd, 20, 10, 6 * buttonWidth + 250, 400);
 
 		main_menu = CreateMenu();
 		menu_view = CreatePopupMenu();
@@ -379,6 +363,7 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		AppendMenu(menu_view, MF_STRING, ID_PrintTact, L"Вывести такт");
 		AppendMenu(menu_view, MF_STRING, ID_IntervalLength, L"Длина интервала");
 		AppendMenu(menu_view, MF_STRING, ID_AddNoteAndInterval, L"Сложение ноты с интервалов");
+		AppendMenu(menu_view, MF_STRING, ID_CHRD_ADD, L"Добавить аккорд");
 
 		AppendMenu(main_menu, MF_STRING, ABOUT_MENU_ID, L"О программе");
 		AppendMenu(main_menu, MF_STRING, EXIT_MENU_ID, L"Выход");
@@ -388,39 +373,12 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		CreateWindow(L"STATIC", L"Выберите ноту:", WS_CHILD | WS_VISIBLE,
 			900, 10, 150, 20, hMainWnd, NULL, nullptr, NULL);
 
-		combo_add_note = CreateWindow(L"combobox", L"combo_add_note", WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST
-			| CBS_AUTOHSCROLL | WS_VSCROLL, 900, 40, 150, 200, hMainWnd, NULL, wc.hInstance, NULL);
-
-		TCHAR a_notes[7][10] = { TEXT("F"), TEXT("C"), TEXT("G"), TEXT("D"),
-			TEXT("A"), TEXT("E"), TEXT("B") };
-		TCHAR A[7];
-		memset(&A, 0, sizeof(A));
-
-		for (int k = 0; k < 7; k += 1)
-		{
-			wcscpy_s(A, sizeof(A) / sizeof(TCHAR), (TCHAR*)a_notes[k]);
-			SendMessage(combo_add_note, (UINT)CB_ADDSTRING, (WPARAM)0, (LPARAM)A);
-		}
-
-		SendMessage(combo_add_note, CB_SETCURSEL, (WPARAM)0, (LPARAM)0);
+		combo_add_note = CreateComboBoxAddNote(hMainWnd, 900, 40, 150, 200);
 		//---------------------------------------------------------------------------------------------------
 		CreateWindow(L"STATIC", L"Выберите alt:", WS_CHILD | WS_VISIBLE,
 			900, 70, 150, 20, hMainWnd, NULL, nullptr, NULL);
 
-		combo_add_note_alter = CreateWindow(L"combobox", L"combo_add_note_alter", WS_CHILD | WS_VISIBLE
-			| CBS_DROPDOWNLIST | CBS_AUTOHSCROLL | WS_VSCROLL, 900, 100, 150, 200, hMainWnd, NULL, wc.hInstance, NULL);
-
-		TCHAR a_alter[3][10] = { TEXT("_"), TEXT("b"), TEXT("#") };
-		TCHAR AA[3];
-		memset(&AA, 0, sizeof(AA));
-
-		for (int k = 0; k < 3; k += 1)
-		{
-			wcscpy_s(AA, sizeof(AA) / sizeof(TCHAR), (TCHAR*)a_alter[k]);
-			SendMessage(combo_add_note_alter, (UINT)CB_ADDSTRING, (WPARAM)0, (LPARAM)AA);
-		}
-
-		SendMessage(combo_add_note_alter, CB_SETCURSEL, (WPARAM)0, (LPARAM)0);
+		combo_add_note_alter = CreateComboBoxAddNoteAlter(hMainWnd, 900, 100, 150, 200);
 		//---------------------------------------------------------------------------------------------------
 		CreateWindow(L"STATIC", L"Укажите dur:", WS_CHILD | WS_VISIBLE,
 			900, 130, 150, 20, hMainWnd, NULL, nullptr, NULL);
@@ -493,272 +451,286 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
 		switch (wParam)
 		{
-		case FILE_MENU_ID:
-		{
-			ofn.lStructSize = sizeof(ofn);
-			ofn.hwndOwner = NULL;
-
-			mbstowcs(wtext, szDirect, strlen(szDirect) + 1);
-			ptr = wtext;
-			ofn.lpstrFile = ptr;
-
-			*(ofn.lpstrFile) = 0;
-			ofn.nMaxFile = sizeof(szDirect);
-			ofn.lpstrFilter = NULL;
-			ofn.nFilterIndex = 1;
-
-			mbstowcs(wtext, szFileName, strlen(szDirect) + 1);
-			ptr = wtext;
-			ofn.lpstrFileTitle = ptr;
-			*(ofn.lpstrFileTitle) = 0;
-			ofn.nMaxFileTitle = sizeof(szFileName);
-			ofn.lpstrInitialDir = NULL;
-			ofn.Flags = OFN_EXPLORER;
-			GetOpenFileName(&ofn);
-
-			arr_w = wstring(ptr);
-			frag1.readFragment(string(arr_w.begin(), arr_w.end()));
-
-			DestroyWindow(hGrBox);
-			hGrBox = CreateWindow(L"Button", L"Н О Т Ы", WS_CHILD | WS_VISIBLE | BS_GROUPBOX,
-				20, 10, 6 * buttonWidth + 250, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
-
-			frag1.printFragment(hGrBox, wc.hInstance);
-
-			UpdateWindow(hGrBox);
-			UpdateWindow(hMainWnd);
-		}
-		break;
-		case ID_Transpose:
-		{
-			if (frag1.getLength() == 0) {
-				MessageBox(NULL, L"Не выбран фрагмент!", L"Ошибка", MB_OK);
-				return 0;
-			}
-
-			childwindNum = 1;
-			SendMessage(hChildWindow1, WM_CLOSE, NULL, NULL);
-			memset(&w, 0, sizeof(WNDCLASS));
-			w.style = CS_HREDRAW | CS_VREDRAW;
-			w.lpfnWndProc = ChildWndProc;
-			w.hInstance = HINSTANCE(wc.hInstance);
-			w.hbrBackground = CreateSolidBrush(RGB(255, 255, 255));
-			w.lpszClassName = szChildClassName;
-			RegisterClass(&w);
-
-			hChildWindow1 = CreateWindow(szChildClassName, L"Выбор способа транспонирования", WS_OVERLAPPEDWINDOW,
-				CW_USEDEFAULT, NULL, 300, 200, hMainWnd, NULL, HINSTANCE(wc.hInstance), NULL);
-			ShowWindow(hChildWindow1, SW_NORMAL);
-			UpdateWindow(hChildWindow1);
-			UpdateWindow(hGrBox);
-			UpdateWindow(hMainWnd);
-		}
-		break;
-		case ID_setBeatLines:
-		{
-			if (frag1.getLength() == 0) {
-				MessageBox(NULL, L"Не выбран фрагмент!", L"Ошибка", MB_OK);
-				return 0;
-			}
-
-			DestroyWindow(hGrBox);
-			hGrBox = CreateWindow(L"Button", L"Н О Т Ы", WS_CHILD | WS_VISIBLE | BS_GROUPBOX,
-				20, 10, 6 * buttonWidth + 250, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
-
-			hStatusBar = DoCreateStatusBar(hMainWnd, 0, wc.hInstance, 1);
-			SetWindowText(hStatusBar, L"Идет расстановка тактовых черт..");
-
-			hwndThread1 = CreateThread(NULL, 0, &Thread1Proc, NULL, NULL, NULL);
-		}
-		break;
-		case ID_Tonality:
-		{
-			if (frag1.getLength() == 0) {
-				MessageBox(NULL, L"Не выбран фрагмент!", L"Ошибка", MB_OK);
-				return 0;
-			}
-
-			// Определение тональности.
-			hwndThread2 = CreateThread(NULL, 0, &Thread2Proc, NULL, NULL, NULL);
-		}
-		break;
-		case ID_PrintTact:
-		{
-			if (frag1.getLength() == 0) {
-				MessageBox(NULL, L"Не выбран фрагмент!", L"Ошибка", MB_OK);
-				return 0;
-			}
-
-			childwindNum = 2;
-			SendMessage(hChildWindow2, WM_CLOSE, NULL, NULL);
-			memset(&w, 0, sizeof(WNDCLASS));
-			w.style = CS_HREDRAW | CS_VREDRAW;
-			w.lpfnWndProc = ChildWndProc;
-			w.hInstance = HINSTANCE(wc.hInstance);
-			w.hbrBackground = CreateSolidBrush(RGB(255, 255, 255));
-			w.lpszClassName = szChildClassName;
-			RegisterClass(&w);
-
-			hChildWindow2 = CreateWindow(szChildClassName, L"Выбор номера такта", WS_OVERLAPPEDWINDOW,
-				CW_USEDEFAULT, NULL, 300, 200, hMainWnd, NULL, HINSTANCE(wc.hInstance), NULL);
-			ShowWindow(hChildWindow2, SW_NORMAL);
-			UpdateWindow(hChildWindow2);
-			UpdateWindow(hGrBox);
-			UpdateWindow(hMainWnd);
-		}
-		break;
-		case ID_IntervalLength:
-		{
-			if (frag1.getLength() == 0) {
-				MessageBox(NULL, L"Не выбран фрагмент!", L"Ошибка", MB_OK);
-				return 0;
-			}
-
-			if (lastClick == nullptr || prelastClick == nullptr)
-				MessageBox(NULL, L"Выберите две ноты!", L"Ошибка", MB_OK);
-			else
+			case FILE_MENU_ID:
 			{
-				str[2] = to_string(frag1.getType());
-				str[3] = to_string(frag1.getNumber());
+				ofn.lStructSize = sizeof(ofn);
+				ofn.hwndOwner = NULL;
 
-				prelastClick->Print(str);
-				alters = str[0];
-
-				lastClick->Print(str);
-				alterswork = "You chose the notes " + alters + " and " + str[0] + ". Continue?";
-				wchar_t wtext[1024];
-				mbstowcs(wtext, alterswork.c_str(), strlen(alterswork.c_str()) + 1);
+				mbstowcs(wtext, szDirect, strlen(szDirect) + 1);
 				ptr = wtext;
+				ofn.lpstrFile = ptr;
 
-				if (MessageBox(NULL, ptr, L"", MB_OKCANCEL) == TRUE)
+				*(ofn.lpstrFile) = 0;
+				ofn.nMaxFile = sizeof(szDirect);
+				ofn.lpstrFilter = NULL;
+				ofn.nFilterIndex = 1;
+
+				mbstowcs(wtext, szFileName, strlen(szDirect) + 1);
+				ptr = wtext;
+				ofn.lpstrFileTitle = ptr;
+				*(ofn.lpstrFileTitle) = 0;
+				ofn.nMaxFileTitle = sizeof(szFileName);
+				ofn.lpstrInitialDir = NULL;
+				ofn.Flags = OFN_EXPLORER;
+				GetOpenFileName(&ofn);
+
+				arr_w = wstring(ptr);
+				frag1.readFragment(string(arr_w.begin(), arr_w.end()));
+
+				DestroyWindow(hGrBox);
+				hGrBox = CreateFragmentBox(hMainWnd, 20, 10, 6 * buttonWidth + 250, 400);
+				frag1.printFragment(hGrBox, wc.hInstance);
+
+				UpdateWindow(hGrBox);
+				UpdateWindow(hMainWnd);
+			}
+			break;
+			case ID_Transpose:
+			{
+				if (frag1.getLength() == 0) {
+					MessageBox(NULL, L"Не выбран фрагмент!", L"Ошибка", MB_OK);
+					return 0;
+				}
+
+				childwindNum = 1;
+				SendMessage(hChildWindow1, WM_CLOSE, NULL, NULL);
+				memset(&w, 0, sizeof(WNDCLASS));
+				w.style = CS_HREDRAW | CS_VREDRAW;
+				w.lpfnWndProc = ChildWndProc;
+				w.hInstance = HINSTANCE(wc.hInstance);
+				w.hbrBackground = CreateSolidBrush(RGB(255, 255, 255));
+				w.lpszClassName = szChildClassName;
+				RegisterClass(&w);
+
+				hChildWindow1 = CreateWindow(szChildClassName, L"Выбор способа транспонирования", WS_OVERLAPPEDWINDOW,
+					CW_USEDEFAULT, NULL, 300, 200, hMainWnd, NULL, HINSTANCE(wc.hInstance), NULL);
+				ShowWindow(hChildWindow1, SW_NORMAL);
+				UpdateWindow(hChildWindow1);
+				UpdateWindow(hGrBox);
+				UpdateWindow(hMainWnd);
+			}
+			break;
+			case ID_setBeatLines:
+			{
+				if (frag1.getLength() == 0) {
+					MessageBox(NULL, L"Не выбран фрагмент!", L"Ошибка", MB_OK);
+					return 0;
+				}
+
+				DestroyWindow(hGrBox);
+				hGrBox = CreateFragmentBox(hMainWnd, 20, 10, 6 * buttonWidth + 250, 400);
+
+				hStatusBar = DoCreateStatusBar(hMainWnd, 0, wc.hInstance, 1);
+				SetWindowText(hStatusBar, L"Идет расстановка тактовых черт..");
+
+				hwndThread1 = CreateThread(NULL, 0, &Thread1Proc, NULL, NULL, NULL);
+			}
+			break;
+			case ID_Tonality:
+			{
+				if (frag1.getLength() == 0) {
+					MessageBox(NULL, L"Не выбран фрагмент!", L"Ошибка", MB_OK);
+					return 0;
+				}
+
+				// Определение тональности.
+				hwndThread2 = CreateThread(NULL, 0, &Thread2Proc, NULL, NULL, NULL);
+			}
+			break;
+			case ID_PrintTact:
+			{
+				if (frag1.getLength() == 0) {
+					MessageBox(NULL, L"Не выбран фрагмент!", L"Ошибка", MB_OK);
+					return 0;
+				}
+
+				childwindNum = 2;
+				SendMessage(hChildWindow2, WM_CLOSE, NULL, NULL);
+				memset(&w, 0, sizeof(WNDCLASS));
+				w.style = CS_HREDRAW | CS_VREDRAW;
+				w.lpfnWndProc = ChildWndProc;
+				w.hInstance = HINSTANCE(wc.hInstance);
+				w.hbrBackground = CreateSolidBrush(RGB(255, 255, 255));
+				w.lpszClassName = szChildClassName;
+				RegisterClass(&w);
+
+				hChildWindow2 = CreateWindow(szChildClassName, L"Выбор номера такта", WS_OVERLAPPEDWINDOW,
+					CW_USEDEFAULT, NULL, 300, 200, hMainWnd, NULL, HINSTANCE(wc.hInstance), NULL);
+				ShowWindow(hChildWindow2, SW_NORMAL);
+				UpdateWindow(hChildWindow2);
+				UpdateWindow(hGrBox);
+				UpdateWindow(hMainWnd);
+			}
+			break;
+			case ID_IntervalLength:
+			{
+				if (frag1.getLength() == 0) {
+					MessageBox(NULL, L"Не выбран фрагмент!", L"Ошибка", MB_OK);
+					return 0;
+				}
+
+				if (lastClick == nullptr || prelastClick == nullptr)
+					MessageBox(NULL, L"Выберите две ноты!", L"Ошибка", MB_OK);
+				else
 				{
-					alterswork = "The interval between " + alters + " and " + str[0] + " = "
-						+ to_string(abs(frag1.getInterval(reinterpret_cast<Note*>(lastClick),
-							reinterpret_cast<Note*>(prelastClick))) / 2) + " tones.";
+					str[2] = to_string(frag1.getType());
+					str[3] = to_string(frag1.getNumber());
+
+					prelastClick->Print(str);
+					alters = str[0];
+
+					lastClick->Print(str);
+					alterswork = "You chose the notes " + alters + " and " + str[0] + ". Continue?";
 					wchar_t wtext[1024];
 					mbstowcs(wtext, alterswork.c_str(), strlen(alterswork.c_str()) + 1);
 					ptr = wtext;
-					MessageBox(NULL, ptr, L"", MB_OK);
+
+					if (MessageBox(NULL, ptr, L"", MB_OKCANCEL) == TRUE)
+					{
+						alterswork = "The interval between " + alters + " and " + str[0] + " = "
+							+ to_string(abs(frag1.getInterval(reinterpret_cast<Note*>(lastClick),
+								reinterpret_cast<Note*>(prelastClick))) / 2) + " tones.";
+						wchar_t wtext[1024];
+						mbstowcs(wtext, alterswork.c_str(), strlen(alterswork.c_str()) + 1);
+						ptr = wtext;
+						MessageBox(NULL, ptr, L"", MB_OK);
+					}
 				}
-			}
 
-			DestroyWindow(hGrBox);
-			hGrBox = CreateWindow(L"Button", L"Н О Т Ы", WS_CHILD | WS_VISIBLE | BS_GROUPBOX,
-				20, 10, 6 * buttonWidth + 250, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
-			frag1.printFragment(hGrBox, wc.hInstance);
-			UpdateWindow(hGrBox);
-			UpdateWindow(hMainWnd);
-		}
-		break;
-		case ID_AddNoteAndInterval:
-		{
-			if (frag1.getLength() == 0) {
-				MessageBox(NULL, L"Не выбран фрагмент!", L"Ошибка", MB_OK);
-				return 0;
+				DestroyWindow(hGrBox);
+				hGrBox = CreateFragmentBox(hMainWnd, 20, 10, 6 * buttonWidth + 250, 400);
+				frag1.printFragment(hGrBox, wc.hInstance);
+				UpdateWindow(hGrBox);
+				UpdateWindow(hMainWnd);
 			}
-
-			if (lastClick == nullptr)
-				MessageBox(NULL, L"Выберите ноту!", L"Ошибка", MB_OK);
-			else
+			break;
+			case ID_AddNoteAndInterval:
 			{
-				str[2] = to_string(frag1.getType());
-				str[3] = to_string(frag1.getNumber());
-
-				lastClick->Print(str);
-				alters = str[0];
-
-				lastClick->Print(str);
-				alterswork = "You chose the note " + alters + ". Continue?";
-				wchar_t wtext[1024];
-				mbstowcs(wtext, alterswork.c_str(), strlen(alterswork.c_str()) + 1);
-				ptr = wtext;
-
-				if (MessageBox(NULL, ptr, L"", MB_OKCANCEL) == TRUE)
-				{
-					childwindNum = 3;
-					SendMessage(hChildWindow2, WM_CLOSE, NULL, NULL);
-					memset(&w, 0, sizeof(WNDCLASS));
-					w.style = CS_HREDRAW | CS_VREDRAW;
-					w.lpfnWndProc = ChildWndProc;
-					w.hInstance = HINSTANCE(wc.hInstance);
-					w.hbrBackground = CreateSolidBrush(RGB(255, 255, 255));
-					w.lpszClassName = szChildClassName;
-					RegisterClass(&w);
-
-					hChildWindow2 = CreateWindow(szChildClassName, L"Задайте интервал", WS_OVERLAPPEDWINDOW,
-						CW_USEDEFAULT, NULL, 300, 200, hMainWnd, NULL, HINSTANCE(wc.hInstance), NULL);
-					ShowWindow(hChildWindow2, SW_NORMAL);
-					UpdateWindow(hChildWindow2);
-					UpdateWindow(hGrBox);
-					UpdateWindow(hMainWnd);
+				if (frag1.getLength() == 0) {
+					MessageBox(NULL, L"Не выбран фрагмент!", L"Ошибка", MB_OK);
+					return 0;
 				}
-			}
-		}
-		break;
-		case ID_ADD_NOTE_FRAGMENT:
-		{
-			// Получить содержимое из комбобокса (Ноту)
-			int noteIndex = SendMessage(combo_add_note, (UINT)CB_GETCURSEL, (WPARAM)0, (LPARAM)0);
-			TCHAR  name_note[5];
-			(TCHAR)SendMessage(combo_add_note, (UINT)CB_GETLBTEXT, (WPARAM)noteIndex, (LPARAM)name_note);
-			// Получить содержимое из комбобокса (Альтерацию)
-			int alterIndex = SendMessage(combo_add_note_alter, (UINT)CB_GETCURSEL, (WPARAM)0, (LPARAM)0);
-			TCHAR  alter_note[5];
-			(TCHAR)SendMessage(combo_add_note_alter, (UINT)CB_GETLBTEXT, (WPARAM)alterIndex, (LPARAM)alter_note);
-			// Получить содержимое из эдита (Длительность)
-			TCHAR buff[10];
-			GetWindowText(edit_add_note_dur, buff, 10);
-			// Дабавляем ноту во фрагмент
-			int dur_note = _ttoi(buff);
-			frag1.addNoteFragment(name_note[0], alter_note[0], 2, dur_note);
 
-			// Перерисовываем и выводим
-			DestroyWindow(hGrBox);
-			hGrBox = CreateWindow(L"Button", L"Н О Т Ы", WS_CHILD | WS_VISIBLE | BS_GROUPBOX,
-				20, 10, 6 * buttonWidth + 250, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
-			frag1.printFragment(hGrBox, wc.hInstance);
-
-			// Устанавливаю тональность					
-			if (!FLAG_TONALITY)
-			{
-				FLAG_TONALITY = TRUE;
-				Note note;
-				int alter_n, name_n;
-
-				if (note.getAlterative() == '#' || note.getAlterative() == '_')
-					alter_n = 0;
+				if (lastClick == nullptr)
+					MessageBox(NULL, L"Выберите ноту!", L"Ошибка", MB_OK);
 				else
-					alter_n = 1;
+				{
+					str[2] = to_string(frag1.getType());
+					str[3] = to_string(frag1.getNumber());
 
-				name_n = note.getSharpOrder(note.getName());
-				frag1.setTonality(alter_n, name_n);
+					lastClick->Print(str);
+					alters = str[0];
+
+					lastClick->Print(str);
+					alterswork = "You chose the note " + alters + ". Continue?";
+					wchar_t wtext[1024];
+					mbstowcs(wtext, alterswork.c_str(), strlen(alterswork.c_str()) + 1);
+					ptr = wtext;
+
+					if (MessageBox(NULL, ptr, L"", MB_OKCANCEL) == TRUE)
+					{
+						childwindNum = 3;
+						SendMessage(hChildWindow2, WM_CLOSE, NULL, NULL);
+						memset(&w, 0, sizeof(WNDCLASS));
+						w.style = CS_HREDRAW | CS_VREDRAW;
+						w.lpfnWndProc = ChildWndProc;
+						w.hInstance = HINSTANCE(wc.hInstance);
+						w.hbrBackground = CreateSolidBrush(RGB(255, 255, 255));
+						w.lpszClassName = szChildClassName;
+						RegisterClass(&w);
+
+						hChildWindow2 = CreateWindow(szChildClassName, L"Задайте интервал", WS_OVERLAPPEDWINDOW,
+							CW_USEDEFAULT, NULL, 300, 200, hMainWnd, NULL, HINSTANCE(wc.hInstance), NULL);
+						ShowWindow(hChildWindow2, SW_NORMAL);
+						UpdateWindow(hChildWindow2);
+						UpdateWindow(hGrBox);
+						UpdateWindow(hMainWnd);
+					}
+				}
 			}
-
-			UpdateWindow(hGrBox);
-			UpdateWindow(hMainWnd);
-		}
-		break;
-		case ID_ADD_PAUSE:
-		{
-			frag1.addElement(new Pause(2));
-			// Перерисовываем и выводим
-			DestroyWindow(hGrBox);
-			hGrBox = CreateWindow(L"Button", L"Ноты", WS_CHILD | WS_VISIBLE | BS_GROUPBOX,
-				20, 10, 6 * buttonWidth + 250, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
-
-			frag1.printFragment(hGrBox, wc.hInstance);
-			UpdateWindow(hGrBox);
-			UpdateWindow(hMainWnd);
-		}
-		break;
-		case ABOUT_MENU_ID:
-			DialogBoxParam(wc.hInstance, MAKEINTRESOURCE(IDD_DIALOG1), nullptr, DlgProc, 0);
 			break;
-		case EXIT_MENU_ID:
-			DestroyWindow(hMainWnd);
+			case ID_ADD_NOTE_FRAGMENT:
+			{
+				// Получить содержимое из комбобокса (Ноту)
+				int noteIndex = SendMessage(combo_add_note, (UINT)CB_GETCURSEL, (WPARAM)0, (LPARAM)0);
+				TCHAR  name_note[5];
+				(TCHAR)SendMessage(combo_add_note, (UINT)CB_GETLBTEXT, (WPARAM)noteIndex, (LPARAM)name_note);
+				// Получить содержимое из комбобокса (Альтерацию)
+				int alterIndex = SendMessage(combo_add_note_alter, (UINT)CB_GETCURSEL, (WPARAM)0, (LPARAM)0);
+				TCHAR  alter_note[5];
+				(TCHAR)SendMessage(combo_add_note_alter, (UINT)CB_GETLBTEXT, (WPARAM)alterIndex, (LPARAM)alter_note);
+				// Получить содержимое из эдита (Длительность)
+				TCHAR buff[10];
+				GetWindowText(edit_add_note_dur, buff, 10);
+				// Дабавляем ноту во фрагмент
+				int dur_note = _ttoi(buff);
+				frag1.addNoteFragment(name_note[0], alter_note[0], 2, dur_note);
+
+				// Перерисовываем и выводим
+				DestroyWindow(hGrBox);
+				hGrBox = CreateFragmentBox(hMainWnd, 20, 10, 6 * buttonWidth + 250, 400);
+				frag1.printFragment(hGrBox, wc.hInstance);
+
+				// Устанавливаю тональность					
+				if (!FLAG_TONALITY)
+				{
+					FLAG_TONALITY = TRUE;
+					Note note;
+					int alter_n, name_n;
+
+					if (note.getAlterative() == '#' || note.getAlterative() == '_')
+						alter_n = 0;
+					else
+						alter_n = 1;
+
+					name_n = note.getSharpOrder(note.getName());
+					frag1.setTonality(alter_n, name_n);
+				}
+
+				UpdateWindow(hGrBox);
+				UpdateWindow(hMainWnd);
+			}
 			break;
-		default:
-			return 0;
+			case ID_ADD_PAUSE:
+			{
+				frag1.addElement(new Pause(2));
+				// Перерисовываем и выводим
+				DestroyWindow(hGrBox);
+				hGrBox = CreateFragmentBox(hMainWnd, 20, 10, 6 * buttonWidth + 250, 400);
+
+				frag1.printFragment(hGrBox, wc.hInstance);
+				UpdateWindow(hGrBox);
+				UpdateWindow(hMainWnd);
+			}
+			break;
+			case ID_CHRD_ADD:
+			{
+				childwindNum = 4;
+				SendMessage(hChildWindow4, WM_CLOSE, NULL, NULL);
+				memset(&w, 0, sizeof(WNDCLASS));
+				w.style = CS_HREDRAW | CS_VREDRAW;
+				w.lpfnWndProc = ChildWndProc;
+				w.hInstance = HINSTANCE(wc.hInstance);
+				w.hbrBackground = CreateSolidBrush(RGB(255, 255, 255));
+				w.lpszClassName = szChildClassName;
+				RegisterClass(&w);
+
+				hChildWindow4 = CreateWindow(szChildClassName, L"Добавить аккорд", WS_OVERLAPPEDWINDOW,
+					CW_USEDEFAULT, NULL, 600, 300, hMainWnd, NULL, HINSTANCE(wc.hInstance), NULL);
+				ShowWindow(hChildWindow4, SW_NORMAL);
+				UpdateWindow(hChildWindow4);
+				UpdateWindow(hGrBox);
+				UpdateWindow(hMainWnd);
+			}
+			break;
+			case ABOUT_MENU_ID:
+				DialogBoxParam(wc.hInstance, MAKEINTRESOURCE(IDD_DIALOG1), nullptr, DlgProc, 0);
+				break;
+			case EXIT_MENU_ID:
+				DestroyWindow(hMainWnd);
+				break;
+			default:
+				return 0;
 		}
 	}
 	case WM_KEYDOWN:
@@ -803,6 +775,11 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 LONG WINAPI ChildWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lparam)
 {
+	static HWND c_add_note1, c_add_note_alter1, e_add_note_dur,
+				c_add_note2, c_add_note_alter2,
+				c_add_note3, c_add_note_alter3;
+	static HWND hEditcount_note, labelChrd, btnChrd;
+
 	TCHAR buf[10];
 	LPWSTR item;
 	string str = "   ";
@@ -819,129 +796,248 @@ LONG WINAPI ChildWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lparam)
 	case WM_COMMAND:
 		switch (LOWORD(wParam))
 		{
-		case 102:
-		{
-			if (Button_GetCheck(upPrior) == BST_CHECKED)
+			case 102:
 			{
-				frag1.transpose(-1);
+				if (Button_GetCheck(upPrior) == BST_CHECKED)
+				{
+					frag1.transpose(-1);
+					frag1.printFragment(hGrBox, wc.hInstance);
+				}
+				else
+				{
+					frag1.transpose(1);
+					frag1.printFragment(hGrBox, wc.hInstance);
+				}
+
+				InvalidateRect(hWnd, NULL, true);
+			}
+			break;
+			case 103:
+			{
+				DestroyWindow(hGrBox);
+				hGrBox = CreateFragmentBox(hMainWnd, 20, 10, 6 * buttonWidth + 250, 400);
+				GetWindowText(editblock, buf, 10);
+				frag1.printTact(hGrBox, wc.hInstance, atoi((char*)buf));
+				InvalidateRect(hWnd, NULL, true);
+			}
+			break;
+			case 104:
+			{
+				if (nItem > 12)
+				{
+					nItem = -((nItem - 1) % 10);
+				}
+
+				newnote = *(reinterpret_cast<Note*>(lastClick)) + nItem;
+				GetWindowTextW(Combo1, buf, sizeof(buf));
+
+				str1[2] = to_string(frag1.getType());
+				str1[3] = to_string(frag1.getNumber());
+
+				lastClick->Print(str1);
+				alters = str1[0];
+				newnote.Print(str1);
+
+				arr_w = wstring(buf);
+				alterswork = alters + " + (" + string(arr_w.begin(), arr_w.end()) + ") = " + str1[0];
+				mbstowcs(wtext, alterswork.c_str(), strlen(alterswork.c_str()) + 1);
+				ptr = wtext;
+				MessageBox(NULL, ptr, L"", MB_OK);
+
+				DestroyWindow(hGrBox);
+				hGrBox = CreateFragmentBox(hMainWnd, 20, 10, 6 * buttonWidth + 250, 400);
+				frag1.printFragment(hGrBox, wc.hInstance);
+				UpdateWindow(hGrBox);
+				UpdateWindow(hMainWnd);
+			}
+			break;
+			case CHRD_MENU_ID:
+			{
+				TCHAR buf[10];
+				GetWindowText(hEditcount_note, buf, 10);
+				int c_note = _ttoi(buf);
+
+				int noteIndex = SendMessage(c_add_note1, (UINT)CB_GETCURSEL, (WPARAM)0, (LPARAM)0);
+				TCHAR  name_note[5];
+				(TCHAR)SendMessage(c_add_note1, (UINT)CB_GETLBTEXT, (WPARAM)noteIndex, (LPARAM)name_note);
+
+				int alterIndex = SendMessage(c_add_note_alter1, (UINT)CB_GETCURSEL, (WPARAM)0, (LPARAM)0);
+				TCHAR  alter_note[5];
+				(TCHAR)SendMessage(c_add_note_alter1, (UINT)CB_GETLBTEXT, (WPARAM)alterIndex, (LPARAM)alter_note);
+
+				TCHAR buff[10];
+				GetWindowText(e_add_note_dur, buff, 10);
+				int dur_note = _ttoi(buff);
+
+				Chrd *chrd = new Chrd(dur_note);
+				chrd->addNote(new Note(name_note[0], alter_note[0] == '_' ? ' ' : alter_note[0], 2, dur_note));
+			
+				// ------------------------------------------------------------------------------------
+				int noteIndex2 = SendMessage(c_add_note2, (UINT)CB_GETCURSEL, (WPARAM)0, (LPARAM)0);
+				TCHAR  name_note2[5];
+				(TCHAR)SendMessage(c_add_note2, (UINT)CB_GETLBTEXT, (WPARAM)noteIndex2, (LPARAM)name_note2);
+				
+				int alterIndex2 = SendMessage(c_add_note_alter2, (UINT)CB_GETCURSEL, (WPARAM)0, (LPARAM)0);
+				TCHAR  alter_note2[5];
+				(TCHAR)SendMessage(c_add_note_alter2, (UINT)CB_GETLBTEXT, (WPARAM)alterIndex2, (LPARAM)alter_note2);
+
+				chrd->addNote(new Note(name_note2[0], alter_note2[0] == '_' ? ' ' : alter_note2[0], 2, dur_note));
+
+				if (c_note == 3)
+				{
+					int noteIndex3 = SendMessage(c_add_note3, (UINT)CB_GETCURSEL, (WPARAM)0, (LPARAM)0);
+					TCHAR  name_note3[5];
+					(TCHAR)SendMessage(c_add_note3, (UINT)CB_GETLBTEXT, (WPARAM)noteIndex3, (LPARAM)name_note3);
+
+					int alterIndex3 = SendMessage(c_add_note_alter3, (UINT)CB_GETCURSEL, (WPARAM)0, (LPARAM)0);
+					TCHAR  alter_note3[5];
+					(TCHAR)SendMessage(c_add_note_alter3, (UINT)CB_GETLBTEXT, (WPARAM)alterIndex3, (LPARAM)alter_note3);
+
+					chrd->addNote(new Note(name_note3[0], alter_note3[0] == '_' ? ' ' : alter_note3[0], 2, dur_note));
+				}
+
+				frag1.addElement(chrd);
+
+				// Перерисовываем и выводим
+				DestroyWindow(hGrBox);
+				hGrBox = CreateFragmentBox(hMainWnd, 20, 10, 6 * buttonWidth + 250, 400);
 				frag1.printFragment(hGrBox, wc.hInstance);
 			}
-			else
+			break;
+			case CHRD_COUNT_NOTE_ID:
 			{
-				frag1.transpose(1);
-				frag1.printFragment(hGrBox, wc.hInstance);
+				// Получить содержимое из эдита (Длительность)
+				TCHAR buff[10];
+				GetWindowText(hEditcount_note, buff, 10);
+				// Дабавляем ноту во фрагмент
+				int c_note = _ttoi(buff);
+				
+				if (c_note != 2 && c_note != 3) return 0;
+
+				CreateWindow(L"STATIC", L"Выберите ноту:", WS_CHILD | WS_VISIBLE,
+					10, 30, 150, 20, hWnd, NULL, nullptr, NULL);
+				c_add_note1 = CreateComboBoxAddNote(hWnd, 10, 60, 150, 200);
+
+				CreateWindow(L"STATIC", L"Выберите alt:", WS_CHILD | WS_VISIBLE,
+					10, 90, 150, 20, hWnd, NULL, nullptr, NULL);
+				c_add_note_alter1 = CreateComboBoxAddNoteAlter(hWnd, 10, 120, 150, 200);
+
+				CreateWindow(L"STATIC", L"Укажите dur:", WS_CHILD | WS_VISIBLE,
+					10, 150, 150, 20, hWnd, NULL, nullptr, NULL);
+				e_add_note_dur = CreateWindow(L"EDIT", L"2", WS_CHILD | WS_VISIBLE | WS_BORDER,
+					10, 180, 150, 20, hWnd, NULL, nullptr, NULL);
+				//---------------------------------------------------------------------------------------------------
+				CreateWindow(L"STATIC", L"Выберите ноту:", WS_CHILD | WS_VISIBLE,
+					210, 30, 150, 20, hWnd, NULL, nullptr, NULL);
+				c_add_note2 = CreateComboBoxAddNote(hWnd, 210, 60, 150, 200);
+
+				CreateWindow(L"STATIC", L"Выберите alt:", WS_CHILD | WS_VISIBLE,
+					210, 90, 150, 20, hWnd, NULL, nullptr, NULL);
+				c_add_note_alter2 = CreateComboBoxAddNoteAlter(hWnd, 210, 120, 150, 200);
+				//---------------------------------------------------------------------------------------------------
+				int x_btn = 0;
+				if (c_note == 3)
+				{
+					CreateWindow(L"STATIC", L"Выберите ноту:", WS_CHILD | WS_VISIBLE,
+						410, 30, 150, 20, hWnd, NULL, nullptr, NULL);
+					c_add_note3 = CreateComboBoxAddNote(hWnd, 410, 60, 150, 200);
+
+					CreateWindow(L"STATIC", L"Выберите alt:", WS_CHILD | WS_VISIBLE,
+						410, 90, 150, 20, hWnd, NULL, nullptr, NULL);
+					c_add_note_alter3 = CreateComboBoxAddNoteAlter(hWnd, 410, 120, 150, 200);
+					x_btn = 200;
+				}
+
+				CreateWindow(L"BUTTON", L"Добавить", BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | WS_TABSTOP,
+					210+ x_btn, 210, 150, 24, hWnd, (HMENU)CHRD_MENU_ID, wc.hInstance, NULL);
+			
+				ShowWindow((HWND)labelChrd, SW_HIDE);
+				ShowWindow((HWND)btnChrd, SW_HIDE);
+				ShowWindow((HWND)hEditcount_note, SW_HIDE);
 			}
+			break;
+			case ID_COMBO:
+				if (HIWORD(wParam) == CBN_EDITCHANGE)
+					GetWindowTextW(Combo1, item, sizeof(item));
 
-			InvalidateRect(hWnd, NULL, true);
-		}
-		break;
-		case 103:
-		{
-			DestroyWindow(hGrBox);
-			hGrBox = CreateWindow(L"Button", L"Ноты", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 20, 10,
-				6 * buttonWidth + 250, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
-			GetWindowText(editblock, buf, 10);
-			frag1.printTact(hGrBox, wc.hInstance, atoi((char*)buf));
-			InvalidateRect(hWnd, NULL, true);
-		}
-		break;
-		case 104:
-		{
-			if (nItem > 12)
-			{
-				nItem = -((nItem - 1) % 10);
-			}
-
-			newnote = *(reinterpret_cast<Note*>(lastClick)) + nItem;
-			GetWindowTextW(Combo1, buf, sizeof(buf));
-
-			str1[2] = to_string(frag1.getType());
-			str1[3] = to_string(frag1.getNumber());
-
-			lastClick->Print(str1);
-			alters = str1[0];
-			newnote.Print(str1);
-
-			arr_w = wstring(buf);
-			alterswork = alters + " + (" + string(arr_w.begin(), arr_w.end()) + ") = " + str1[0];
-			mbstowcs(wtext, alterswork.c_str(), strlen(alterswork.c_str()) + 1);
-			ptr = wtext;
-			MessageBox(NULL, ptr, L"", MB_OK);
-
-			DestroyWindow(hGrBox);
-			hGrBox = CreateWindow(L"Button", L"Н О Т Ы", WS_CHILD | WS_VISIBLE | BS_GROUPBOX, 20, 10, 6 * buttonWidth + 250, 400, hMainWnd, (HMENU)ID_FragmentBox, wc.hInstance, NULL);
-
-			frag1.printFragment(hGrBox, wc.hInstance);
-			UpdateWindow(hGrBox);
-			UpdateWindow(hMainWnd);
-		}
-		break;
-		case ID_COMBO:
-			if (HIWORD(wParam) == CBN_EDITCHANGE)
-				GetWindowTextW(Combo1, item, sizeof(item));
-
-			if (HIWORD(wParam) == CBN_SELCHANGE)
-				nItem = ComboBox_GetCurSel(Combo1);
+				if (HIWORD(wParam) == CBN_SELCHANGE)
+					nItem = ComboBox_GetCurSel(Combo1);
 		}
 		break;
 	case WM_CREATE:
 		switch (childwindNum)
 		{
-		case 1:
-			CreateWindow(L"STATIC", L"Транспонировать вверх", WS_CHILD | WS_VISIBLE,
-				10, 10, 200, 20, hWnd, (HMENU)150, nullptr, NULL);
-			CreateWindowEx(WS_EX_TRANSPARENT, L"BUTTON", L"Вверх", WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
-				220, 10, 10, 10, hWnd, (HMENU)151, GetModuleHandle(NULL), 0);
-			CreateWindow(L"STATIC", L"Транспонировать вниз", WS_CHILD | WS_VISIBLE,
-				10, 40, 200, 20, hWnd, (HMENU)152, nullptr, NULL);
-			upPrior = CreateWindowEx(WS_EX_TRANSPARENT, L"BUTTON", L"Вниз", WS_CHILD | WS_VISIBLE
-				| BS_AUTORADIOBUTTON, 220, 40, 10, 10, hWnd, (HMENU)153, GetModuleHandle(NULL), 0);
-			Button_SetCheck(upPrior, 1);
-
-			Apply = CreateWindow(L"BUTTON", L"Применить", BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | WS_TABSTOP,
-				95, 80, 110, 20, hWnd, (HMENU)102, wc.hInstance, NULL);
-			break;
-		case 2:
-			CreateWindow(L"STATIC", L"Введите номер такта", WS_CHILD | WS_VISIBLE,
-				10, 10, 200, 20, hWnd, (HMENU)154, nullptr, NULL);
-			editblock = CreateWindow(L"EDIT", L"1", WS_CHILD | WS_VISIBLE | WS_BORDER,
-				220, 10, 30, 20, hWnd, (HMENU)155, nullptr, NULL);
-			Apply = CreateWindow(L"BUTTON", L"Применить", BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | WS_TABSTOP,
-				95, 80, 110, 20, hWnd, (HMENU)103, wc.hInstance, NULL);
-			break;
-		case 3:
-			CreateWindow(L"STATIC", L"Выберите интервал из списка:", WS_CHILD | WS_VISIBLE,
-				10, 10, 250, 20, hWnd, (HMENU)154, nullptr, NULL);
-			Combo1 = CreateWindow(L"combobox", L"combo", WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST
-				| CBS_AUTOHSCROLL | WS_VSCROLL, 10, 40, 100, 200, hWnd, (HMENU)ID_COMBO, wc.hInstance, NULL);
-			nItem = 0;
-			// load the combobox with item list.  
-			// Send a CB_ADDSTRING message to load each item
-
-			TCHAR Intervals[25][10] =
+			case 1:
 			{
-				TEXT("P1"), TEXT("m2"), TEXT("M2"), TEXT("m3"),
-				TEXT("M3"), TEXT("P4"), TEXT("A4/d5"), TEXT("P5"), TEXT("m6"),
-				TEXT("M6"), TEXT("m7"), TEXT("M7"), TEXT("P8"),
-				TEXT("-m2"), TEXT("-M2"), TEXT("-m3"),TEXT("-M3"),
-				TEXT("-P4"), TEXT("-A4/d5"), TEXT("-P5"), TEXT("-m6"), TEXT("-M6"),
-				TEXT("-m7"), TEXT("-M7"), TEXT("-P8")
-			};
+				CreateWindow(L"STATIC", L"Транспонировать вверх", WS_CHILD | WS_VISIBLE,
+					10, 10, 200, 20, hWnd, (HMENU)150, nullptr, NULL);
+				CreateWindowEx(WS_EX_TRANSPARENT, L"BUTTON", L"Вверх", WS_CHILD | WS_VISIBLE | BS_AUTORADIOBUTTON,
+					220, 10, 10, 10, hWnd, (HMENU)151, GetModuleHandle(NULL), 0);
+				CreateWindow(L"STATIC", L"Транспонировать вниз", WS_CHILD | WS_VISIBLE,
+					10, 40, 200, 20, hWnd, (HMENU)152, nullptr, NULL);
+				upPrior = CreateWindowEx(WS_EX_TRANSPARENT, L"BUTTON", L"Вниз", WS_CHILD | WS_VISIBLE
+					| BS_AUTORADIOBUTTON, 220, 40, 10, 10, hWnd, (HMENU)153, GetModuleHandle(NULL), 0);
+				Button_SetCheck(upPrior, 1);
 
-			TCHAR A[12];
-			int  k = 0;
-			memset(&A, 0, sizeof(A));
-
-			for (k = 0; k <= 22; k += 1)
-			{
-				wcscpy_s(A, sizeof(A) / sizeof(TCHAR), (TCHAR*)Intervals[k]);
-				SendMessage(Combo1, (UINT)CB_ADDSTRING, (WPARAM)0, (LPARAM)A);
+				Apply = CreateWindow(L"BUTTON", L"Применить", BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | WS_TABSTOP,
+					95, 80, 110, 20, hWnd, (HMENU)102, wc.hInstance, NULL);
 			}
+			break;
+			case 2:
+			{
+				CreateWindow(L"STATIC", L"Введите номер такта", WS_CHILD | WS_VISIBLE,
+					10, 10, 200, 20, hWnd, (HMENU)154, nullptr, NULL);
+				editblock = CreateWindow(L"EDIT", L"1", WS_CHILD | WS_VISIBLE | WS_BORDER,
+					220, 10, 30, 20, hWnd, (HMENU)155, nullptr, NULL);
+				Apply = CreateWindow(L"BUTTON", L"Применить", BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | WS_TABSTOP,
+					95, 80, 110, 20, hWnd, (HMENU)103, wc.hInstance, NULL);
+			}
+			break;
+			case 3:
+			{
+				CreateWindow(L"STATIC", L"Выберите интервал из списка:", WS_CHILD | WS_VISIBLE,
+					10, 10, 250, 20, hWnd, (HMENU)154, nullptr, NULL);
+				Combo1 = CreateWindow(L"combobox", L"combo", WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST
+					| CBS_AUTOHSCROLL | WS_VSCROLL, 10, 40, 100, 200, hWnd, (HMENU)ID_COMBO, wc.hInstance, NULL);
+				nItem = 0;
+				// load the combobox with item list.  
+				// Send a CB_ADDSTRING message to load each item
 
-			SendMessage(Combo1, CB_SETCURSEL, (WPARAM)0, (LPARAM)0);
-			SendMessage(Combo1, CB_SETEXTENDEDUI, 1, 0);
-			Apply = CreateWindow(L"BUTTON", L"Применить", BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD
-				| WS_TABSTOP, 95, 80, 110, 20, hWnd, (HMENU)104, wc.hInstance, NULL);
+				TCHAR Intervals[25][10] =
+				{
+					TEXT("P1"), TEXT("m2"), TEXT("M2"), TEXT("m3"),
+					TEXT("M3"), TEXT("P4"), TEXT("A4/d5"), TEXT("P5"), TEXT("m6"),
+					TEXT("M6"), TEXT("m7"), TEXT("M7"), TEXT("P8"),
+					TEXT("-m2"), TEXT("-M2"), TEXT("-m3"),TEXT("-M3"),
+					TEXT("-P4"), TEXT("-A4/d5"), TEXT("-P5"), TEXT("-m6"), TEXT("-M6"),
+					TEXT("-m7"), TEXT("-M7"), TEXT("-P8")
+				};
+
+				TCHAR A[12];
+				int  k = 0;
+				memset(&A, 0, sizeof(A));
+
+				for (k = 0; k <= 22; k += 1)
+				{
+					wcscpy_s(A, sizeof(A) / sizeof(TCHAR), (TCHAR*)Intervals[k]);
+					SendMessage(Combo1, (UINT)CB_ADDSTRING, (WPARAM)0, (LPARAM)A);
+				}
+
+				SendMessage(Combo1, CB_SETCURSEL, (WPARAM)0, (LPARAM)0);
+				SendMessage(Combo1, CB_SETEXTENDEDUI, 1, 0);
+				Apply = CreateWindow(L"BUTTON", L"Применить", BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD
+					| WS_TABSTOP, 95, 80, 110, 20, hWnd, (HMENU)104, wc.hInstance, NULL);
+			}
+			break;
+			case 4:
+			{
+				labelChrd=CreateWindow(L"STATIC", L"Количество нот в аккорде (2-3):", WS_CHILD | WS_VISIBLE,
+					10, 10, 230, 20, hWnd, NULL, nullptr, NULL);
+				hEditcount_note = CreateWindow(L"EDIT", L"2", WS_CHILD | WS_VISIBLE | WS_BORDER,
+					10, 40, 150, 20, hWnd, NULL, nullptr, NULL);
+				btnChrd=CreateWindow(L"BUTTON", L"Добавить", BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | WS_TABSTOP,
+					10, 70, 150, 24, hWnd, (HMENU)CHRD_COUNT_NOTE_ID, wc.hInstance, NULL);
+			}
 			break;
 		}
 	case WM_MOVE: case WM_DESTROY:

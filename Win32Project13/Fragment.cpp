@@ -17,6 +17,12 @@ Fragment::Fragment(int num , int den , int type , int number )
 	Form.Denominator = den;
 }
 
+// Получить список элементов
+vector <HWND> Fragment::getListElementsFragment()
+{
+	return elems;
+}
+
 // Добавление элемента
 // obj element - Элемент
 void Fragment::addElement(Element *element)

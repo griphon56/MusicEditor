@@ -30,6 +30,7 @@ public:
 	void setTonality(int type, int  number);
 	string getTonality();
 	
+	vector <HWND> Fragment::getListElementsFragment();
 	void printTact(HWND &wind, HINSTANCE &hInst, int number);
 	int getLength();
 	int getType();

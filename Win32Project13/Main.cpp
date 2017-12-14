@@ -839,7 +839,7 @@ LONG WINAPI ChildWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lparam)
 	string alters = "", alterswork;
 	string *str1 = new string[4];
 	wstring arr_w;
-	Note newnote, oldnote;
+	Note newnote;
 
 	vector <HWND> elemsFrg;
 
@@ -882,12 +882,10 @@ LONG WINAPI ChildWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lparam)
 			}
 
 			newnote = *(reinterpret_cast<Note*>(lastClick)) + nItem;
-			oldnote = *(reinterpret_cast<Note*>(lastClick));
-			GetWindowTextW(Combo1, buf, sizeof(buf));
 
+			GetWindowTextW(Combo1, buf, sizeof(buf));
 			str1[2] = to_string(frag1.getType());
 			str1[3] = to_string(frag1.getNumber());
-
 			lastClick->Print(str1);
 			alters = str1[0];
 			newnote.Print(str1);
@@ -898,11 +896,8 @@ LONG WINAPI ChildWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lparam)
 			ptr = wtext;
 			MessageBox(NULL, ptr, L"", MB_OK);
 
-			// Нота полученая сложением с интервалом.
-			frag1.addNoteFragment(newnote.getName(), newnote.getAlterative(), 2, newnote.getDuration());
-
-			//DestroyWindow(hGrBox);
-			//hGrBox = CreateFragmentBox(hMainWnd, 20, 10, 6 * buttonWidth + 250, 400);
+			// Нота полученная в результате сложения с интервалом
+			frag1.updateNote((reinterpret_cast<Note*>(lastClick)), newnote.getName(), newnote.getAlterative(), 2);
 			
 			frag1.printFragment(hMainWnd, wc.hInstance);
 

@@ -30,7 +30,7 @@ public:
 	void setTonality(int type, int  number);
 	string getTonality();
 	
-	vector <HWND> Fragment::getListElementsFragment();
+	vector <HWND> getListElementsFragment();
 	void printTact(HWND &wind, HINSTANCE &hInst, int number);
 	int getLength();
 	int getType();
@@ -38,5 +38,8 @@ public:
 
 	void addNoteFragment(char name_note, char alt_note, int oct_note, int  dur_note);
 	void readFragment(string filename);
+
+	void updateNote(Note *note1, char name_note, char alt_note, int oct_note);
+
 	Element * findElement(int x, int y);
 };

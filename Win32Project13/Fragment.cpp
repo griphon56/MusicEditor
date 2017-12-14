@@ -8,7 +8,7 @@
 vector <HWND> elems;
 vector <HWND> tootips;
 
-// ХЗ
+// Рабочая область
 Fragment::Fragment(int num , int den , int type , int number )
 {
 	Alterative.Type = type;
@@ -159,6 +159,18 @@ void Fragment::printFragment(HWND &wind, HINSTANCE &hInst)
 		}
 	}
 
+}
+
+// Обновление ноты.
+// Note *note1 - object Нота для обновления.
+// char name_note - название новой ноты.
+// char alt_note - альтерация новой ноты.
+// int oct_note - октава новой ноты.
+void Fragment::updateNote(Note *note1, char name_note, char alt_note, int oct_note)
+{
+	note1->setName(name_note);
+	note1->setAlterative(alt_note);
+	note1->setOctave(oct_note);
 }
 
 // Получить интервал.

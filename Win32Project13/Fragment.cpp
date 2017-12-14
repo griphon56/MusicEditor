@@ -119,7 +119,7 @@ void Fragment::printFragment(HWND &wind, HINSTANCE &hInst)
 
 	StringCbPrintfW(buf, ARRAYSIZE(buf), L"Знаки альтерации: %s", ptr);
 	
-	labelCont = CreateWindow(TEXT("Static"), buf, WS_CHILD | WS_VISIBLE, 10, 30, 130 + Alterative.Number * 22, 20, wind, (HMENU)5001, hInst, NULL);
+	labelCont = CreateWindow(TEXT("Static"), buf, WS_CHILD | WS_VISIBLE, 10, 30, 160, 20, wind, (HMENU)5001, hInst, NULL);
 	elems.push_back (labelCont);
 
 	alters = to_string(Form.Numerator) + "/" + to_string(Form.Denominator); 
@@ -128,8 +128,7 @@ void Fragment::printFragment(HWND &wind, HINSTANCE &hInst)
 
 	StringCbPrintfW(buf, ARRAYSIZE(buf), L"Размер: %s", ptr);
 
-	elems.push_back (CreateWindow(TEXT("Static"), buf, WS_CHILD | WS_VISIBLE, 10, 60, 140, 20, wind, (HMENU)5002, hInst, NULL));
-
+	elems.push_back (CreateWindow(TEXT("Static"), buf, WS_CHILD | WS_VISIBLE, 10, 60, 160, 20, wind, (HMENU)5002, hInst, NULL));
 
 	int xNum =0, yNum = 0;
 

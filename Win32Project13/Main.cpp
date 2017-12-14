@@ -236,12 +236,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	ShowWindow(hMainWnd, nCmdShow);
 	UpdateWindow(hMainWnd);
 
-	/*Scroll1 = CreateWindow(L"scrollbar", NULL,
-		WS_CHILD | WS_VISIBLE |
-		SB_VERT ,
-		700, 18, 16, 392,
-		hMainWnd, (HMENU)ID_SCROLL, hInstance, NULL);*/
-
 	// Выполняем цикл обработки сообщений до закрытия приложения
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
@@ -266,26 +260,6 @@ BOOL CALLBACK DlgProc(HWND hwnd, UINT Message, WPARAM wparam, LPARAM lparam)
 	return 0;
 }
 
-// Debug Pix потом удалить
-/*void drawPix(HWND hWnd, int x, int y)
-{
-InvalidateRect(hWnd, NULL, TRUE);
-RECT rectangle;
-RECT clientRect;
-InvalidateRect(hWnd, NULL, TRUE);
-HDC hdc; //создаём контекст устройства
-PAINTSTRUCT paintStruct; //создаём экземпляр структуры графического вывода
-static int size = 5;
-rectangle = { x,y,x + size,y + size };
-hdc = BeginPaint(hWnd, &paintStruct);
-GetClientRect(hWnd, &clientRect);
-//рисуем квадрат
-FillRect(hdc, &rectangle, HBRUSH(CreateSolidBrush(RGB(128, 0, 128))));
-EndPaint(hWnd, &paintStruct);
-ReleaseDC(hWnd, hdc);
-DeleteObject(&rectangle);
-}*/
-
 LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
 	HDC hDC;
@@ -297,9 +271,11 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	int fragLength;
 	HMENU main_menu, menu_view;
 
+	vector <HWND> elementFrNote;
+	vector <HWND> elementFrLabel;
+
 	char buffer = '1';
 	static HWND combo_add_note, combo_add_note_alter, edit_add_note_dur;
-	static int nPage, nCurPos, nPosMin, nPosMax;
 	char pos[5];
 
 	SetConsoleCP(1251);
@@ -325,30 +301,12 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		
 	case WM_CREATE:
 	{
-		// Создаем скрол бар
-		/*Scroll1 = CreateWindow(L"scrollbar", NULL, SBS_VERT | SBS_BOTTOMALIGN | WS_CHILD | WS_VISIBLE,
-			6 * buttonWidth + 250 + 20, 18, 16, 392, hMainWnd, NULL, NULL, NULL);*/
-			// Начальное значение позиции
-
 		// Начальное значение позиции
 		nScrollPos = 0;
-
 		// Задаем диапазон изменения значений
-		SetScrollRange(hMainWnd, SB_VERT, 0, 20, FALSE);
-
+		SetScrollRange(hMainWnd, SB_VERT, 0, 1000, FALSE);
 		// Устанавливаем ползунок в начальную позицию
 		SetScrollPos(hMainWnd, SB_VERT, nScrollPos, TRUE);
-		//MoveWindow(hGrBox, 10, nScrollPos, 6 * buttonWidth + 250, 400, FALSE);
-	/*	nPage = 10;
-		nPosMin = 1;
-		nPosMax = 100;
-		nCurPos = 0;
-
-		SetScrollRange(Scroll1, SB_CTL, nPosMin, nPosMax, TRUE);
-		SetScrollPos(Scroll1, SB_CTL, nCurPos, TRUE);*/
-
-		// Окно "Фрагмент"
-		//hGrBox = CreateFragmentBox(hMainWnd, 20, 10, 6 * buttonWidth + 250, 400);
 
 		main_menu = CreateMenu();
 		menu_view = CreatePopupMenu();
@@ -371,46 +329,6 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		UpdateWindow(hMainWnd);
 	}
 	break;
-	/*case WM_VSCROLL:
-	{
-		switch (LOWORD(wParam))
-		{
-		case SB_TOP:
-			nCurPos = nPosMin;
-			break;
-		case SB_LINEUP:
-			nCurPos--;
-			break;
-		case SB_PAGEUP:
-			nCurPos -= nPage;
-			break;
-		case SB_BOTTOM:
-			nCurPos = nPosMax;
-			break;
-		case SB_LINEDOWN:
-			nCurPos++;
-			break;
-		case SB_PAGEDOWN:
-			nCurPos += nPage;
-			break;
-		case SB_THUMBPOSITION:
-		case SB_THUMBTRACK:
-			nCurPos = HIWORD(wParam);
-			break;
-		}
-		if (nCurPos >= nPosMax) {
-			nCurPos = nPosMax;
-			EnableScrollBar(Scroll1, SB_CTL, ESB_DISABLE_DOWN);
-		}
-		if (nCurPos <= nPosMin) {
-			nCurPos = nPosMin;
-			EnableScrollBar(Scroll1, SB_CTL, ESB_DISABLE_UP);
-		}
-
-		SetScrollPos(Scroll1, SB_CTL, nCurPos, TRUE);
-	}
-	break;*/
-
 	// Сообщение от вертикальной полосы просмотра
 	case WM_VSCROLL:
 	{
@@ -428,12 +346,12 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		}
 		case SB_LINEUP:
 		{
-			nScrollPos -= 1;
+			nScrollPos -= 10;
 			break;
 		}
 		case SB_LINEDOWN:
 		{
-			nScrollPos += 1;
+			nScrollPos += 10;
 			break;
 		}
 		case SB_PAGEUP:
@@ -464,13 +382,44 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		}
 
 		// Ограничиваем диапазон изменения значений
-		//if (nScrollPos > 20) nScrollPos = 20;
-		//if (nScrollPos < 0) nScrollPos = 0;
+		if (nScrollPos > 1000) nScrollPos = 1000;
+		if (nScrollPos < 0) nScrollPos = 0;
 
 		// Устанавливаем ползунок в новое положение
 		SetScrollPos(hMainWnd, SB_VERT, nScrollPos, TRUE);
+		// HWND лейблов которые будем передвигать
+		int yyNum = 0;
+		elementFrLabel = frag1.getListElementsFragment();
+		for (int i = 0; i < 2; i++)
+		{
+			HWND hElementFrLabel = reinterpret_cast<HWND>(elementFrLabel[i]);
+			MoveWindow((HWND)hElementFrLabel, 10, (30 + yyNum) + nScrollPos, 160, 20, TRUE);
+			yyNum = 30;
+		}
+
+		// HWND нот и аккордов которые будем передвигать
+		int xNum = 0, yNum = 0;
+		elementFrNote = frag1.getListElementsFragment();
+		unsigned frLenNote = elementFrNote.size();
+		unsigned j = 0;
+		for (unsigned i = 2; i < frLenNote; i++)
+		{		
+			HWND hElementFr = reinterpret_cast<HWND>(elementFrNote[i]);
+			MoveWindow((HWND)hElementFr, 10 + xNum, (90 + yNum) + nScrollPos, 70, 60, TRUE);
+			if ((j + 1) % 9 == 0)
+			{
+				xNum = 0;
+				yNum += 70;
+			}
+			else
+			{
+				xNum += 90;
+			}
+			j++;
+		}
 
 		// Обновляем окно
+		UpdateWindow(hMainWnd);
 		InvalidateRect(hMainWnd, NULL, TRUE);
 
 		return 0;
@@ -518,11 +467,8 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			arr_w = wstring(ptr);
 			frag1.readFragment(string(arr_w.begin(), arr_w.end()));
 
-			//DestroyWindow(hGrBox);
-			//hGrBox = CreateFragmentBox(hMainWnd, 20, 10, 6 * buttonWidth + 250, 400);
 			frag1.printFragment(hMainWnd, wc.hInstance);
 
-			//UpdateWindow(hGrBox);
 			UpdateWindow(hMainWnd);
 		}
 		break;
@@ -557,10 +503,6 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				MessageBox(NULL, L"Не выбран фрагмент!", L"Ошибка", MB_OK);
 				return 0;
 			}
-
-			//DestroyWindow(hGrBox);
-			//hGrBox = CreateFragmentBox(hMainWnd, 20, 10, 6 * buttonWidth + 250, 400);
-
 			hStatusBar = DoCreateStatusBar(hMainWnd, 0, wc.hInstance, 1);
 			SetWindowText(hStatusBar, L"Идет расстановка тактовых черт..");
 
@@ -641,10 +583,7 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				}
 			}
 
-			//DestroyWindow(hGrBox);
-			//hGrBox = CreateFragmentBox(hMainWnd, 20, 10, 6 * buttonWidth + 250, 400);
 			frag1.printFragment(hMainWnd, wc.hInstance);
-			//UpdateWindow(hGrBox);
 			UpdateWindow(hMainWnd);
 		}
 		break;
@@ -710,8 +649,6 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			frag1.addNoteFragment(name_note[0], alter_note[0], 2, dur_note);
 
 			// Перерисовываем и выводим
-			//DestroyWindow(hGrBox);
-			//hGrBox = CreateFragmentBox(hMainWnd, 20, 10, 6 * buttonWidth + 250, 400);
 			frag1.printFragment(hMainWnd, wc.hInstance);
 
 			// Устанавливаю тональность					
@@ -729,20 +666,13 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				name_n = note.getSharpOrder(note.getName());
 				frag1.setTonality(alter_n, name_n);
 			}
-
-			//UpdateWindow(hGrBox);
 			UpdateWindow(hMainWnd);
 		}
 		break;
 		case ID_ADD_PAUSE:
 		{
 			frag1.addElement(new Pause(2));
-			// Перерисовываем и выводим
-			//DestroyWindow(hGrBox);
-			//hGrBox = CreateFragmentBox(hMainWnd, 20, 10, 6 * buttonWidth + 250, 400);
-
 			frag1.printFragment(hMainWnd, wc.hInstance);
-			//UpdateWindow(hGrBox);
 			UpdateWindow(hMainWnd);
 		}
 		break;
@@ -788,9 +718,6 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		hDC = GetDC(hMainWnd);
 		x = LOWORD(lParam) - 20; //узнаём координаты
 		y = HIWORD(lParam) - 10;
-
-		// drawPix(hMainWnd, x, y);
-		//if(x < 0 || y < 0 || y > 400 || x >  6 * buttonWidth + 370) break;
 
 		elemnt = frag1.findElement(x, y);
 
@@ -866,12 +793,10 @@ LONG WINAPI ChildWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lparam)
 		break;
 		case 103:
 		{
-			//DestroyWindow(hGrBox);
 			hGrBox = CreateFragmentBox(hMainWnd, 50, 50, 350, 200);
 			GetWindowText(editblock, buf, 10);
 			frag1.printTact(hGrBox, wc.hInstance, atoi((char*)buf));
 			InvalidateRect(hWnd, NULL, true);
-			//UpdateWindow(hMainWnd);
 		}
 		break;
 		case 104:
@@ -978,8 +903,6 @@ LONG WINAPI ChildWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lparam)
 			}
 
 			// Перерисовываем и выводим
-			//DestroyWindow(hGrBox);
-			//hGrBox = CreateFragmentBox(hMainWnd, 20, 10, 6 * buttonWidth + 250, 400);
 			frag1.printFragment(hMainWnd, wc.hInstance);
 		}
 		break;

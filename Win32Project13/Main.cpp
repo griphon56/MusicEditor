@@ -269,7 +269,7 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	ifstream in;
 	wstring arr_w;
 	int fragLength;
-	HMENU main_menu, menu_view;
+	HMENU main_menu, menu_view, menu_file, main_change;
 
 	vector <HWND> elementFrNote;
 	vector <HWND> elementFrLabel;
@@ -309,17 +309,20 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		SetScrollPos(hMainWnd, SB_VERT, nScrollPos, TRUE);
 
 		main_menu = CreateMenu();
+		menu_file = CreatePopupMenu();
 		menu_view = CreatePopupMenu();
-		AppendMenu(main_menu, MF_STRING | MF_POPUP, (UINT)menu_view, L"&Ноты");
-		AppendMenu(menu_view, MF_STRING, FILE_MENU_ID, L"Открыть");
+		AppendMenu(main_menu, MF_STRING | MF_POPUP, (UINT)menu_file, L"&Файл");
+		AppendMenu(menu_file, MF_STRING, FILE_MENU_ID, L"Открыть");
+		AppendMenu(menu_file, MF_STRING, ID_CHRD_ADD, L"Добавить Ноту/Аккорд");
+		AppendMenu(menu_file, MF_STRING, ID_ADD_PAUSE, L"Добавить паузу");
+
+		AppendMenu(main_menu, MF_STRING | MF_POPUP, (UINT)menu_view, L"&Правка");
 		AppendMenu(menu_view, MF_STRING, ID_Transpose, L"Перемещение по октавам");
 		AppendMenu(menu_view, MF_STRING, ID_setBeatLines, L"Расстановка тактов");
 		AppendMenu(menu_view, MF_STRING, ID_Tonality, L"Определение тональности");
 		AppendMenu(menu_view, MF_STRING, ID_PrintTact, L"Вывести такт");
 		AppendMenu(menu_view, MF_STRING, ID_IntervalLength, L"Длина интервала");
 		AppendMenu(menu_view, MF_STRING, ID_AddNoteAndInterval, L"Сложение ноты с интервалов");
-		AppendMenu(menu_view, MF_STRING, ID_CHRD_ADD, L"Добавить Ноту/Аккорд");
-		AppendMenu(menu_view, MF_STRING, ID_ADD_PAUSE, L"Добавить паузу");
 
 		AppendMenu(main_menu, MF_STRING, ABOUT_MENU_ID, L"О программе");
 		AppendMenu(main_menu, MF_STRING, EXIT_MENU_ID, L"Выход");
@@ -346,23 +349,23 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		}
 		case SB_LINEUP:
 		{
-			nScrollPos -= 10;
+			nScrollPos += 10;
 			break;
 		}
 		case SB_LINEDOWN:
 		{
-			nScrollPos += 10;
+			nScrollPos -= 10;
 			break;
 		}
 		case SB_PAGEUP:
 		{
-			nScrollPos -= cyClient  ;
+			nScrollPos += cyClient  ;
 			
 			break;
 		}
 		case SB_PAGEDOWN:
 		{
-			nScrollPos += cyClient;
+			nScrollPos -= cyClient;
 			break;
 		}
 		case SB_THUMBPOSITION:
@@ -375,15 +378,16 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		// перемещении ползунка
 		case SB_THUMBTRACK:
 		{
-			return 0;
+			nScrollPos = LOWORD(lParam);
+			break;
 		}
 		default:
 			break;
 		}
 
 		// Ограничиваем диапазон изменения значений
-		if (nScrollPos > 1000) nScrollPos = 1000;
-		if (nScrollPos < 0) nScrollPos = 0;
+		//if (nScrollPos > 1000) nScrollPos = 1000;
+		//if (nScrollPos < 0) nScrollPos = 0;
 
 		// Устанавливаем ползунок в новое положение
 		SetScrollPos(hMainWnd, SB_VERT, nScrollPos, TRUE);
@@ -418,6 +422,7 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			j++;
 		}
 
+		elementFrNote.empty();
 		// Обновляем окно
 		UpdateWindow(hMainWnd);
 		InvalidateRect(hMainWnd, NULL, TRUE);
@@ -826,7 +831,6 @@ LONG WINAPI ChildWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lparam)
 			
 			frag1.printFragment(hMainWnd, wc.hInstance);
 
-			//UpdateWindow(hGrBox);
 			UpdateWindow(hMainWnd);
 		}
 		break;

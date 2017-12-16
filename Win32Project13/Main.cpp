@@ -146,6 +146,7 @@ HWND CreateComboBoxAddNote(HWND hwndParent, int width, int height, int x, int y)
 	TCHAR a_notes[7][10] = { TEXT("F"), TEXT("C"), TEXT("G"), TEXT("D"),
 		TEXT("A"), TEXT("E"), TEXT("B") };
 	TCHAR A[7];
+
 	memset(&A, 0, sizeof(A));
 
 	for (int k = 0; k < 7; k += 1)
@@ -153,10 +154,10 @@ HWND CreateComboBoxAddNote(HWND hwndParent, int width, int height, int x, int y)
 		wcscpy_s(A, sizeof(A) / sizeof(TCHAR), (TCHAR*)a_notes[k]);
 		SendMessage(hComboBox, (UINT)CB_ADDSTRING, (WPARAM)0, (LPARAM)A);
 	}
+	
 	SendMessage(hComboBox, CB_SETCURSEL, (WPARAM)0, (LPARAM)0);
 
-	// Создать hComboBox
-	return hComboBox;
+	return hComboBox; 	// Создать hComboBox
 }
 
 // ComboBox для Альтерации.
@@ -177,8 +178,7 @@ HWND CreateComboBoxAddNoteAlter(HWND hwndParent, int width, int height, int x, i
 	}
 	SendMessage(hComboBox, CB_SETCURSEL, (WPARAM)0, (LPARAM)0);
 
-	// Создать hComboBox
-	return hComboBox;
+	return hComboBox; 	// Создать hComboBox
 }
 
 // Fragment - окно с нотами и аккордами (Рабочая область)
@@ -193,7 +193,6 @@ HWND CreateFragmentBox(HWND hMainWnd, int x, int y, int width, int height)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	MSG msg;
-
 	lastClick = nullptr; prelastClick = nullptr;
 
 	// Заполняем структуру класса окна
@@ -214,23 +213,20 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	if (!RegisterClassEx(&wc))
 	{
 		MessageBox(NULL, L"Не удается зарегистрировать класс.", L"Ошибка", MB_OK);
-
 		return 0;
 	}
 
 	// Создаем основное окно приложения
-	hMainWnd = CreateWindowW(wc.lpszClassName, L"WndProc", WS_OVERLAPPEDWINDOW | WS_VSCROLL, CW_USEDEFAULT, 0, 900, 500,
-		NULL, NULL, hInstance, NULL);
+	hMainWnd = CreateWindowW(wc.lpszClassName, L"WndProc", WS_OVERLAPPEDWINDOW | WS_VSCROLL, CW_USEDEFAULT, 
+		0, 900, 500, NULL, NULL, hInstance, NULL);
 
 	if (!hMainWnd)
 	{
 		MessageBox(NULL, L"Не удалось создать главное окно.", L"Ошибка", MB_OK);
-
 		return 0;
 	}
 
 	SetWindowText(hMainWnd, L"Музыкальный фрагмент");
-
 
 	// Показываем окно
 	ShowWindow(hMainWnd, nCmdShow);
@@ -250,12 +246,12 @@ BOOL CALLBACK DlgProc(HWND hwnd, UINT Message, WPARAM wparam, LPARAM lparam)
 {
 	switch (Message)
 	{
-	case WM_CLOSE:
-		EndDialog(hwnd, 0);
-		break;
-		break;
-	default:
-		break;
+		case WM_CLOSE:
+			EndDialog(hwnd, 0);
+			break;
+			break;
+		default:
+			break;
 	}
 	return 0;
 }
@@ -295,10 +291,11 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	Element *elemnt;
 	beatSTRUCT_P param;
 	static int nScrollPos;
+
 	switch (msg)
 	{
 		int x, y, cxClient, cyClient; //координаты
-		
+
 	case WM_CREATE:
 	{
 		// Начальное значение позиции
@@ -359,8 +356,8 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		}
 		case SB_PAGEUP:
 		{
-			nScrollPos += cyClient  ;
-			
+			nScrollPos += cyClient;
+
 			break;
 		}
 		case SB_PAGEDOWN:
@@ -407,7 +404,7 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		unsigned frLenNote = elementFrNote.size();
 		unsigned j = 0;
 		for (unsigned i = 2; i < frLenNote; i++)
-		{		
+		{
 			HWND hElementFr = reinterpret_cast<HWND>(elementFrNote[i]);
 			MoveWindow((HWND)hElementFr, 10 + xNum, (90 + yNum) + nScrollPos, 70, 60, TRUE);
 			if ((j + 1) % 9 == 0)
@@ -498,19 +495,19 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				CW_USEDEFAULT, NULL, 300, 200, hMainWnd, NULL, HINSTANCE(wc.hInstance), NULL);
 			ShowWindow(hChildWindow1, SW_NORMAL);
 			UpdateWindow(hChildWindow1);
-			//UpdateWindow(hGrBox);
 			UpdateWindow(hMainWnd);
 		}
 		break;
 		case ID_setBeatLines:
 		{
-			if (frag1.getLength() == 0) {
+			if (frag1.getLength() == 0)
+			{
 				MessageBox(NULL, L"Не выбран фрагмент!", L"Ошибка", MB_OK);
 				return 0;
 			}
+
 			hStatusBar = DoCreateStatusBar(hMainWnd, 0, wc.hInstance, 1);
 			SetWindowText(hStatusBar, L"Идет расстановка тактовых черт..");
-
 			hwndThread1 = CreateThread(NULL, 0, &Thread1Proc, NULL, NULL, NULL);
 			Sleep(3000);
 			frag1.printFragment(hMainWnd, wc.hInstance);
@@ -547,9 +544,9 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 			hChildWindow2 = CreateWindow(szChildClassName, L"Выбор номера такта", WS_OVERLAPPEDWINDOW,
 				CW_USEDEFAULT, NULL, 300, 200, hMainWnd, NULL, HINSTANCE(wc.hInstance), NULL);
+
 			ShowWindow(hChildWindow2, SW_NORMAL);
 			UpdateWindow(hChildWindow2);
-			//UpdateWindow(hGrBox);
 			UpdateWindow(hMainWnd);
 		}
 		break;
@@ -630,7 +627,6 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 						CW_USEDEFAULT, NULL, 300, 200, hMainWnd, NULL, HINSTANCE(wc.hInstance), NULL);
 					ShowWindow(hChildWindow2, SW_NORMAL);
 					UpdateWindow(hChildWindow2);
-					//UpdateWindow(hGrBox);
 					UpdateWindow(hMainWnd);
 				}
 			}
@@ -652,7 +648,6 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			// Дабавляем ноту во фрагмент
 			int dur_note = _ttoi(buff);
 			frag1.addNoteFragment(name_note[0], alter_note[0], 2, dur_note);
-
 			// Перерисовываем и выводим
 			frag1.printFragment(hMainWnd, wc.hInstance);
 
@@ -697,7 +692,6 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				CW_USEDEFAULT, NULL, 600, 300, hMainWnd, NULL, HINSTANCE(wc.hInstance), NULL);
 			ShowWindow(hChildWindow4, SW_NORMAL);
 			UpdateWindow(hChildWindow4);
-			//UpdateWindow(hGrBox);
 			UpdateWindow(hMainWnd);
 		}
 		break;
@@ -719,6 +713,7 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			return 0;
 		}
 	case WM_LBUTTONDOWN:
+	{
 		//Узнаем какой фрагмент был выбран.
 		hDC = GetDC(hMainWnd);
 		x = LOWORD(lParam) - 20; //узнаём координаты
@@ -733,7 +728,8 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 			lastClick = elemnt;
 		}
-		break;
+	}
+	break;
 	case WM_SIZE:
 	{
 		cxClient = LOWORD(lParam);
@@ -742,6 +738,7 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	}
 	break;
 	case WM_CTLCOLORSTATIC:
+	{
 		switch (wParam)
 		{
 		case 5001:
@@ -749,6 +746,7 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			SetBkColor(hdcStatic, TRANSPARENT);
 			return (INT_PTR)GetStockObject(NULL_BRUSH);
 		}
+	}
 	default:
 		return DefWindowProc(hMainWnd, msg, wParam, lParam);
 	}
@@ -772,7 +770,6 @@ LONG WINAPI ChildWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lparam)
 	string *str1 = new string[4];
 	wstring arr_w;
 	Note newnote;
-
 	vector <HWND> elemsFrg;
 
 	switch (Message)
@@ -807,12 +804,9 @@ LONG WINAPI ChildWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lparam)
 		case 104:
 		{
 			if (nItem > 12)
-			{
 				nItem = -((nItem - 1) % 10);
-			}
 
 			newnote = *(reinterpret_cast<Note*>(lastClick)) + nItem;
-
 			GetWindowTextW(Combo1, buf, sizeof(buf));
 			str1[2] = to_string(frag1.getType());
 			str1[3] = to_string(frag1.getNumber());
@@ -828,9 +822,7 @@ LONG WINAPI ChildWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lparam)
 
 			// Нота полученная в результате сложения с интервалом
 			frag1.updateNote((reinterpret_cast<Note*>(lastClick)), newnote.getName(), newnote.getAlterative(), 2);
-			
 			frag1.printFragment(hMainWnd, wc.hInstance);
-
 			UpdateWindow(hMainWnd);
 		}
 		break;
@@ -851,7 +843,7 @@ LONG WINAPI ChildWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lparam)
 			TCHAR buff[10];
 			GetWindowText(e_add_note_dur, buff, 10);
 			int dur_note = _ttoi(buff);
-			
+
 			Chrd *chrd = new Chrd(dur_note);
 
 			if (c_note == 1)
@@ -875,9 +867,7 @@ LONG WINAPI ChildWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lparam)
 				}
 			}
 			else
-			{
 				chrd->addNote(new Note(name_note[0], alter_note[0] == '_' ? ' ' : alter_note[0], 2, dur_note));
-			}
 
 			if (c_note == 2 || c_note == 3)
 			{
@@ -918,16 +908,15 @@ LONG WINAPI ChildWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lparam)
 			// Дабавляем ноту во фрагмент
 			int c_note = _ttoi(buff);
 
-			if (c_note != 1 && c_note != 2 && c_note != 3) return 0;
+			if (c_note != 1 && c_note != 2 && c_note != 3)
+				return 0;
 
 			CreateWindow(L"STATIC", L"Выберите ноту:", WS_CHILD | WS_VISIBLE,
 				10, 30, 150, 20, hWnd, NULL, nullptr, NULL);
 			c_add_note1 = CreateComboBoxAddNote(hWnd, 10, 60, 150, 200);
-
 			CreateWindow(L"STATIC", L"Выберите alt:", WS_CHILD | WS_VISIBLE,
 				10, 90, 150, 20, hWnd, NULL, nullptr, NULL);
 			c_add_note_alter1 = CreateComboBoxAddNoteAlter(hWnd, 10, 120, 150, 200);
-
 			CreateWindow(L"STATIC", L"Укажите dur:", WS_CHILD | WS_VISIBLE,
 				10, 150, 150, 20, hWnd, NULL, nullptr, NULL);
 			e_add_note_dur = CreateWindow(L"EDIT", L"2", WS_CHILD | WS_VISIBLE | WS_BORDER,
@@ -939,7 +928,6 @@ LONG WINAPI ChildWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lparam)
 				CreateWindow(L"STATIC", L"Выберите ноту:", WS_CHILD | WS_VISIBLE,
 					210, 30, 150, 20, hWnd, NULL, nullptr, NULL);
 				c_add_note2 = CreateComboBoxAddNote(hWnd, 210, 60, 150, 200);
-
 				CreateWindow(L"STATIC", L"Выберите alt:", WS_CHILD | WS_VISIBLE,
 					210, 90, 150, 20, hWnd, NULL, nullptr, NULL);
 				c_add_note_alter2 = CreateComboBoxAddNoteAlter(hWnd, 210, 120, 150, 200);
@@ -950,13 +938,13 @@ LONG WINAPI ChildWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lparam)
 					CreateWindow(L"STATIC", L"Выберите ноту:", WS_CHILD | WS_VISIBLE,
 						410, 30, 150, 20, hWnd, NULL, nullptr, NULL);
 					c_add_note3 = CreateComboBoxAddNote(hWnd, 410, 60, 150, 200);
-
 					CreateWindow(L"STATIC", L"Выберите alt:", WS_CHILD | WS_VISIBLE,
 						410, 90, 150, 20, hWnd, NULL, nullptr, NULL);
 					c_add_note_alter3 = CreateComboBoxAddNoteAlter(hWnd, 410, 120, 150, 200);
 					x_btn = 400;
 				}
 			}
+
 			CreateWindow(L"BUTTON", L"Добавить", BS_PUSHBUTTON | WS_VISIBLE | WS_CHILD | WS_TABSTOP,
 				10 + x_btn, 210, 150, 24, hWnd, (HMENU)CHRD_MENU_ID, wc.hInstance, NULL);
 
@@ -1009,8 +997,6 @@ LONG WINAPI ChildWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lparam)
 			Combo1 = CreateWindow(L"combobox", L"combo", WS_CHILD | WS_VISIBLE | CBS_DROPDOWNLIST
 				| CBS_AUTOHSCROLL | WS_VSCROLL, 10, 40, 100, 200, hWnd, (HMENU)ID_COMBO, wc.hInstance, NULL);
 			nItem = 0;
-			// load the combobox with item list.  
-			// Send a CB_ADDSTRING message to load each item
 
 			TCHAR Intervals[25][10] =
 			{

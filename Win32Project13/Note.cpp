@@ -45,6 +45,7 @@ void Note::Print(string *str)
 	string fullName = "  ";
 	fullName[0] = Name;
 	fullName[1] = Alterative;
+
 	for (j = 0; j < 12; ++j)
 	{
 		if (allNotes[type][j] == fullName)
@@ -54,12 +55,14 @@ void Note::Print(string *str)
 	str[0] = "  ";
 	str[0][0] = Name;
 
-	if ((allNotes[type][j][1] == '#' && getSharpOrder(allNotes[type][j][0]) <= number) || (allNotes[type][j][1] == 'b' && getSharpOrder(allNotes[type][j][0]) >= number))
+	if ((allNotes[type][j][1] == '#' && getSharpOrder(allNotes[type][j][0]) <= number) 
+		|| (allNotes[type][j][1] == 'b' && getSharpOrder(allNotes[type][j][0]) >= number))
 		str[0][1] = ' ';
-	else str[0][1] = Alterative;
+	else 
+		str[0][1] = Alterative;
+
 	str[0] += " (" + octaveNames[Octave] + ")";
 	str[1] = " 1/" + to_string(getDuration());
-
 }
 
 // Получить знак альтерации
@@ -67,7 +70,12 @@ void Note::Print(string *str)
 int Note::getSharpOrder(char noteLetter)
 {
 	map<char, int> sharpOrder;
-	sharpOrder['F'] = 1; sharpOrder['C'] = 2; sharpOrder['G'] = 3; sharpOrder['D'] = 4; sharpOrder['A'] = 5; sharpOrder['E'] = 6; sharpOrder['B'] = 7;
+
+	sharpOrder['F'] = 1; sharpOrder['C'] = 2; 
+	sharpOrder['G'] = 3; sharpOrder['D'] = 4; 
+	sharpOrder['A'] = 5; sharpOrder['E'] = 6; 
+	sharpOrder['B'] = 7;
+
 	return sharpOrder[noteLetter];
 }
 
@@ -94,8 +102,8 @@ void Note::transpose(int interval, int type, int number)
 	string noteName = " ";
 	noteName[0] = Name;
 	noteName += Alterative;
-
 	unsigned j;
+
 	for (j = 0; j < 12; ++j)
 	{
 		if (allNotes[type][j] == noteName)
@@ -105,6 +113,7 @@ void Note::transpose(int interval, int type, int number)
 	int newj = j + interval;
 	j = (newj + 12) % 12;
 	unsigned oct = getOctave() + newj / 12;
+
 	if (oct < 0)
 		setOctave(oct);
 	else
@@ -122,8 +131,8 @@ Note Note::operator + (int interval)
 	string noteName = " ";
 	noteName[0] = Name;
 	noteName += Alterative;
-
 	unsigned j, i;
+
 	for (i = 0; i < 2; ++i)
 	{
 		for (j = 0; j < 12; ++j)
@@ -133,6 +142,7 @@ Note Note::operator + (int interval)
 				int newj = j + interval;
 				j = (newj + 12) % 12;
 				unsigned oct = getOctave() + newj / 12;
+
 				if (oct < 0)
 					note->setOctave(oct);
 				else
@@ -145,5 +155,4 @@ Note Note::operator + (int interval)
 			}
 		}
 	}
-
 }

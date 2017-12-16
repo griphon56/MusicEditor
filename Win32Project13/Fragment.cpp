@@ -73,17 +73,18 @@ void Fragment::setBeatLines()
 	for(unsigned i = 0; i <fragmentLength; ++i)
 	{
 		if(Elements[i]->getType() != 3)
+		{
+			count += 16 / Elements[i]->getDuration();
+			
+			if(count > Form.Numerator * 16 / Form.Denominator)
 			{
-				count += 16 / Elements[i]->getDuration();
-				if(count > Form.Numerator * 16 / Form.Denominator)
-				{
-					Element *newLine = new BeatLine;
-					Elements.insert(Elements.begin() + i + 1, newLine);
-					++i;
-					++fragmentLength;
-					count = 0;
-				}
+				Element *newLine = new BeatLine;
+				Elements.insert(Elements.begin() + i + 1, newLine);
+				++i;
+				++fragmentLength;
+				count = 0;
 			}
+		}
 		else
 		{
 			--i;
@@ -102,37 +103,34 @@ void Fragment::printFragment(HWND &wind, HINSTANCE &hInst)
 	string znaki[7] = {"F", "C", "G", "D", "A", "E", "B"};
 	string alters = ""; 
 	string *str = new string[4];
+	LPWSTR ptr = toLPWSTR(alters);
 
 	elems.clear();
-
 	int i;
+	int ID_LABEL = 5001 + elems.size();
+
 	if(Alterative.Type == 0)
 		for(i = 0; i < Alterative.Number; ++i)
 			alters += (znaki[i] + "# ");
 	else 
 		for(i = Alterative.Number - 1; i > 0; --i)
 			alters += (znaki[i] + "b ");
-	
-	int ID_LABEL = 5001 + elems.size();
-
-	LPWSTR ptr =  toLPWSTR(alters);
 
 	StringCbPrintfW(buf, ARRAYSIZE(buf), L"Знаки альтерации: %s", ptr);
+	labelCont = CreateWindow(TEXT("Static"), buf, WS_CHILD | WS_VISIBLE, 
+		10, 30, 160, 20, wind, (HMENU)5001, hInst, NULL);
 	
-	labelCont = CreateWindow(TEXT("Static"), buf, WS_CHILD | WS_VISIBLE, 10, 30, 160, 20, wind, (HMENU)5001, hInst, NULL);
 	elems.push_back (labelCont);
-
 	alters = to_string(Form.Numerator) + "/" + to_string(Form.Denominator); 
-
 	ptr =  toLPWSTR(alters);
-
 	StringCbPrintfW(buf, ARRAYSIZE(buf), L"Размер: %s", ptr);
 
-	elems.push_back (CreateWindow(TEXT("Static"), buf, WS_CHILD | WS_VISIBLE, 10, 60, 160, 20, wind, (HMENU)5002, hInst, NULL));
+	elems.push_back (CreateWindow(TEXT("Static"), buf, WS_CHILD | WS_VISIBLE, 
+		10, 60, 160, 20, wind, (HMENU)5002, hInst, NULL));
 
 	int xNum =0, yNum = 0;
-
 	unsigned fragmentLength = Elements.size();
+
 	for(unsigned i = 0; i < fragmentLength; ++i)
 	{
 		str[2] = to_string(Alterative.Type);
@@ -144,7 +142,8 @@ void Fragment::printFragment(HWND &wind, HINSTANCE &hInst)
 		mbstowcs(wtext, alters.c_str(), strlen(alters.c_str())+1);
 		ptr = wtext;
 
-		labelCont = CreateWindow(TEXT("Static"), ptr, WS_CHILD | WS_VISIBLE |SS_CENTER , 10 + xNum, 90 + yNum, 70, 60, wind, (HMENU)5003 + i, hInst, NULL);
+		labelCont = CreateWindow(TEXT("Static"), ptr, WS_CHILD | WS_VISIBLE |SS_CENTER , 
+			10 + xNum, 90 + yNum, 70, 60, wind, (HMENU)5003 + i, hInst, NULL);
 		elems.push_back (labelCont);
 
 		if((i + 1) % 9 == 0)
@@ -153,9 +152,7 @@ void Fragment::printFragment(HWND &wind, HINSTANCE &hInst)
 			yNum += 70;
 		}
 		else
-		{
 			xNum += 90;
-		}
 	}
 
 }
@@ -184,6 +181,7 @@ int Fragment::getInterval(Note *note1, Note* note2)
 
 	unsigned flag = 0;
 	int i = 0, j, k;
+
 	while(flag < 2)
 	{
 		if(allNotes[Alterative.Type][i] == name1)
@@ -197,10 +195,10 @@ int Fragment::getInterval(Note *note1, Note* note2)
 			++flag;
 			j = i;
 		}
+
 		++i;
 	}
 	return (j - k);
-
 }
 
 // Установить тональность
@@ -241,49 +239,43 @@ void Fragment::printTact(HWND &wind, HINSTANCE &hInst, int number)
 			}
 		}
 
-		elems.clear();
+	elems.clear();
 
-		TCHAR buf[1024];
-		HWND labelCont;
+	TCHAR buf[1024];
+	HWND labelCont;
 	
-		string znaki[7] = {"F", "C", "G", "D", "A", "E", "B"};
-		string alters = ""; 
-		string *str = new string[4];
+	string znaki[7] = {"F", "C", "G", "D", "A", "E", "B"};
+	string alters = ""; 
+	string *str = new string[4];
+	int i;
+	int ID_LABEL = 5001 + elems.size();
 
-		int i;
-		if(Alterative.Type == 0)
-			for(i = 0; i < Alterative.Number; ++i)
-				alters += (znaki[i] + "# ");
-		else 
-			for(i = Alterative.Number - 1; i > 0; --i)
-				alters += (znaki[i] + "b ");
+	if(Alterative.Type == 0)
+		for(i = 0; i < Alterative.Number; ++i)
+			alters += (znaki[i] + "# ");
+	else 
+		for(i = Alterative.Number - 1; i > 0; --i)
+			alters += (znaki[i] + "b ");
+
+	LPWSTR ptr =  toLPWSTR(alters);
+
+	StringCbPrintfW(buf, ARRAYSIZE(buf), L"Знаки альтерации: %s", ptr);
+	labelCont = CreateWindow(TEXT("Static"), buf, WS_CHILD | WS_VISIBLE, 
+		10, 30, 130 + Alterative.Number * 22, 20, wind, (HMENU)5001, hInst, NULL);
 	
-		int ID_LABEL = 5001 + elems.size();
+	elems.push_back (labelCont);
+	alters = to_string(Form.Numerator) + "/" + to_string(Form.Denominator); 
+	ptr =  toLPWSTR(alters);
+	StringCbPrintfW(buf, ARRAYSIZE(buf), L"Размер: %s", ptr);
 
-		LPWSTR ptr =  toLPWSTR(alters);
-
-		StringCbPrintfW(buf, ARRAYSIZE(buf), L"Знаки альтерации: %s", ptr);
-	
-		labelCont = CreateWindow(TEXT("Static"), buf, WS_CHILD | WS_VISIBLE, 10, 30, 130 + Alterative.Number * 22, 20, wind, (HMENU)5001, hInst, NULL);
-		elems.push_back (labelCont);
-
-		alters = to_string(Form.Numerator) + "/" + to_string(Form.Denominator); 
-
-		ptr =  toLPWSTR(alters);
-
-		StringCbPrintfW(buf, ARRAYSIZE(buf), L"Размер: %s", ptr);
-
-		elems.push_back (CreateWindow(TEXT("Static"), buf, WS_CHILD | WS_VISIBLE, 10, 60, 140, 20, wind, (HMENU)5002, hInst, NULL));
-
-
+	elems.push_back (CreateWindow(TEXT("Static"), buf, WS_CHILD | WS_VISIBLE, 
+		10, 60, 140, 20, wind, (HMENU)5002, hInst, NULL));
 
 	if(itact == fragmentLength)
 		MessageBox(NULL, L"Такого такта нет!", L"Ошибка", MB_OK);
 	else
 	{
-
 		int xNum =0, yNum = 0;
-
 		unsigned fragmentLength = Elements.size();
 
 		for(; itact < fragmentLength; ++itact)
@@ -297,7 +289,8 @@ void Fragment::printTact(HWND &wind, HINSTANCE &hInst, int number)
 			mbstowcs(wtext, alters.c_str(), strlen(alters.c_str())+1);
 			ptr = wtext;
 
-			labelCont = CreateWindow(TEXT("Static"), ptr, WS_CHILD | WS_VISIBLE |SS_CENTER , 10 + xNum, 90 + yNum, 70, 60, wind, (HMENU)5003 + i, hInst, NULL);
+			labelCont = CreateWindow(TEXT("Static"), ptr, WS_CHILD | WS_VISIBLE |SS_CENTER , 
+				10 + xNum, 90 + yNum, 70, 60, wind, (HMENU)5003 + i, hInst, NULL);
 			elems.push_back (labelCont);
 
 			if((itact + 1) % 9 == 0)
@@ -306,10 +299,10 @@ void Fragment::printTact(HWND &wind, HINSTANCE &hInst, int number)
 				yNum += 70;
 			}
 			else
-			{
 				xNum += 90;
-			}
-			if(Elements[itact]->getType() == 3) break;
+
+			if(Elements[itact]->getType() == 3) 
+				break;
 		}
 	}
 }
@@ -322,41 +315,43 @@ void Fragment::readFragment(string filename)
 	fin >> Alterative.Type >> Alterative.Number;
 	fin >> Form.Numerator  >> Form.Denominator;
 	Elements.clear();
-	while(!fin.eof())
+	
+	while (!fin.eof())
 	{
 		int type;
 		fin >> type;
+
 		switch (type)
 		{
 		case 1:
+		{
+			char name, alt; int oct, dur;
+			fin >> name >> alt >> oct >> dur;
+			addElement(new Note(name, alt == '_' ? ' ' : alt, oct, dur));
+			break;
+		}
+		case 2:
+		{
+			int dur;
+			fin >> dur;
+			addElement(new Pause(dur));
+			break;
+		}
+		case 4:
+		{
+			int count, dur;
+			fin >> count >> dur;
+			Chrd *chrd = new Chrd(dur);
+
+			for (int i = 0; i < count; ++i)
 			{
 				char name, alt; int oct, dur;
 				fin >> name >> alt >> oct >> dur;
-				addElement(new Note(name, alt == '_'?' ':alt, oct, dur));
-				break;
+				chrd->addNote(new Note(name, alt == '_' ? ' ' : alt, oct, dur));
 			}
-		case 2:
-			{
-				int dur;
-				fin >> dur;
-				addElement(new Pause(dur));
-				break;
-			}
-		case 4:
-			{
-				int count, dur;
-				fin >> count >> dur;
-				Chrd *chrd = new Chrd(dur);
-				for(int i = 0; i < count; ++i)
-				{
-					char name, alt; int oct, dur;
-					fin >> name >> alt >> oct >> dur;
-					chrd->addNote(new Note(name, alt == '_'?' ':alt, oct, dur));
-				}
-				addElement(chrd);
-				break;
-			}
-
+			addElement(chrd);
+			break;
+		}
 		default:
 			break;
 		}
@@ -390,7 +385,6 @@ Element * Fragment::findElement(int x, int y)
 
 	for(unsigned i = 0; i < fragmentLength; ++i)
 	{
-
 		if((x >= 10 + xNum) && (x<= 60 + xNum) && (y >= 90 + yNum) && (y <= 150 + yNum))
 		{
 			newelem = Elements[i];
@@ -402,9 +396,7 @@ Element * Fragment::findElement(int x, int y)
 			yNum += 70;
 		}
 		else
-		{
 			xNum += 90;
-		}
 	}
 
 	return nullptr;

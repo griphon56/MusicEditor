@@ -190,6 +190,17 @@ HWND CreateFragmentBox(HWND hMainWnd, int x, int y, int width, int height)
 	return hFragmentBox;
 }
 
+void clearFragment()
+{
+	vector <HWND> elementFr = frag1.getListElementsFragment();
+	unsigned frLen = elementFr.size();
+	for (unsigned i = 0; i < frLen; i++)
+	{
+		HWND hElementFr = reinterpret_cast<HWND>(elementFr[i]);
+		ShowWindow((HWND)hElementFr, SW_HIDE);
+	}
+}
+
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	MSG msg;
@@ -271,9 +282,6 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	int fragLength;
 	HMENU main_menu, menu_view, menu_file, main_change;
 
-	vector <HWND> elementFrNote;
-	vector <HWND> elementFrLabel;
-
 	char buffer = '1';
 	static HWND combo_add_note, combo_add_note_alter, edit_add_note_dur;
 	char pos[5];
@@ -335,6 +343,9 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	// Сообщение от вертикальной полосы просмотра
 	case WM_VSCROLL:
 	{
+		vector <HWND> elementFrNote;
+		vector <HWND> elementFrLabel;
+
 		switch (wParam)
 		{
 		case SB_TOP:
@@ -422,10 +433,12 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			j++;
 		}
 
-		elementFrNote.empty();
+		elementFrNote.clear();
+		elementFrLabel.clear();
 		// Обновляем окно
 		UpdateWindow(hMainWnd);
 		InvalidateRect(hMainWnd, NULL, TRUE);
+		
 
 		return 0;
 	}
@@ -448,6 +461,7 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		{
 		case FILE_MENU_ID:
 		{
+			clearFragment();
 			ofn.lStructSize = sizeof(ofn);
 			ofn.hwndOwner = NULL;
 
@@ -498,12 +512,12 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				CW_USEDEFAULT, NULL, 300, 200, hMainWnd, NULL, HINSTANCE(wc.hInstance), NULL);
 			ShowWindow(hChildWindow1, SW_NORMAL);
 			UpdateWindow(hChildWindow1);
-			//UpdateWindow(hGrBox);
 			UpdateWindow(hMainWnd);
 		}
 		break;
 		case ID_setBeatLines:
 		{
+			
 			if (frag1.getLength() == 0) {
 				MessageBox(NULL, L"Не выбран фрагмент!", L"Ошибка", MB_OK);
 				return 0;
@@ -513,6 +527,7 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 			hwndThread1 = CreateThread(NULL, 0, &Thread1Proc, NULL, NULL, NULL);
 			Sleep(3000);
+			clearFragment();
 			frag1.printFragment(hMainWnd, wc.hInstance);
 			UpdateWindow(hMainWnd);
 		}
@@ -588,6 +603,7 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				}
 			}
 
+			clearFragment();
 			frag1.printFragment(hMainWnd, wc.hInstance);
 			UpdateWindow(hMainWnd);
 		}
@@ -630,14 +646,13 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 						CW_USEDEFAULT, NULL, 300, 200, hMainWnd, NULL, HINSTANCE(wc.hInstance), NULL);
 					ShowWindow(hChildWindow2, SW_NORMAL);
 					UpdateWindow(hChildWindow2);
-					//UpdateWindow(hGrBox);
-					UpdateWindow(hMainWnd);
 				}
 			}
 		}
 		break;
 		case ID_ADD_NOTE_FRAGMENT:
 		{
+			clearFragment();
 			// Получить содержимое из комбобокса (Ноту)
 			int noteIndex = SendMessage(combo_add_note, (UINT)CB_GETCURSEL, (WPARAM)0, (LPARAM)0);
 			TCHAR  name_note[5];
@@ -676,6 +691,7 @@ LRESULT CALLBACK WndProc(HWND hMainWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		break;
 		case ID_ADD_PAUSE:
 		{
+			clearFragment();
 			frag1.addElement(new Pause(2));
 			frag1.printFragment(hMainWnd, wc.hInstance);
 			UpdateWindow(hMainWnd);
@@ -782,6 +798,7 @@ LONG WINAPI ChildWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lparam)
 		{
 		case 102:
 		{
+			clearFragment();
 			if (Button_GetCheck(upPrior) == BST_CHECKED)
 			{
 				frag1.transpose(-1);
@@ -828,9 +845,8 @@ LONG WINAPI ChildWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lparam)
 
 			// Нота полученная в результате сложения с интервалом
 			frag1.updateNote((reinterpret_cast<Note*>(lastClick)), newnote.getName(), newnote.getAlterative(), 2);
-			
+			clearFragment();
 			frag1.printFragment(hMainWnd, wc.hInstance);
-
 			UpdateWindow(hMainWnd);
 		}
 		break;
@@ -905,7 +921,7 @@ LONG WINAPI ChildWndProc(HWND hWnd, UINT Message, WPARAM wParam, LPARAM lparam)
 				}
 				frag1.addElement(chrd);
 			}
-
+			clearFragment();
 			// Перерисовываем и выводим
 			frag1.printFragment(hMainWnd, wc.hInstance);
 		}
